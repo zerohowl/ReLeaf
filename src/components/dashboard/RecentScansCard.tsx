@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { History } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface ScanItem {
   id: string;
@@ -30,19 +31,22 @@ const RecentScansCard = ({ items }: RecentScansCardProps) => {
               key={item.id}
               className="flex items-center p-2 rounded-md hover:bg-muted/50"
             >
-              {item.imageUrl ? (
-                <div className="h-10 w-10 rounded-md overflow-hidden mr-3">
-                  <img 
+              <Avatar className="h-10 w-10 rounded-md mr-3">
+                {item.imageUrl ? (
+                  <AvatarImage 
                     src={item.imageUrl} 
                     alt={item.name}
-                    className="h-full w-full object-cover"
+                    className="object-cover"
+                    onError={(e) => {
+                      console.error("Image failed to load:", e);
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
                   />
-                </div>
-              ) : (
-                <div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center mr-3">
+                ) : null}
+                <AvatarFallback className="rounded-md bg-muted flex items-center justify-center">
                   {item.name.charAt(0)}
-                </div>
-              )}
+                </AvatarFallback>
+              </Avatar>
               <div className="flex-1">
                 <div className="font-medium">{item.name}</div>
                 <div className="text-xs text-muted-foreground">{item.date}</div>

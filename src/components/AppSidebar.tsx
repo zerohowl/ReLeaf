@@ -1,3 +1,4 @@
+
 import { 
   Sidebar, 
   SidebarContent,
@@ -18,16 +19,19 @@ import {
   Award, 
   Settings, 
   LogOut,
-  Calendar
+  Calendar,
+  PanelLeft
 } from "lucide-react";
 
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export function AppSidebar() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { state } = useSidebar();
   
   // Menu items
   const navItems = [
@@ -98,7 +102,12 @@ export function AppSidebar() {
           </div>
           <span className="font-bold text-sidebar-foreground">RecycleSmart</span>
         </div>
-        <SidebarTrigger />
+        <SidebarTrigger 
+          className={`
+            ${state === 'collapsed' ? 'bg-eco-green/20 text-eco-green' : ''}
+            hover:bg-eco-green/30 transition-colors duration-200
+          `}
+        />
       </div>
 
       <SidebarContent>

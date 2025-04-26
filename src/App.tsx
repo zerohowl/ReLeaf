@@ -13,6 +13,7 @@ import Leaderboard from "./pages/Leaderboard";
 import Streaks from "./pages/Streaks";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import ChatAssistant from "./components/assistant/ChatAssistant";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <ChatAssistant />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

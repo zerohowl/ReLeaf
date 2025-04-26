@@ -15,7 +15,7 @@ const AuthCard = ({ title, description, children, footer }: AuthCardProps) => {
         <div className="flex items-center justify-center mb-6">
 
         <img
-            src="/Logo.png"        
+            src="/newLogo.png"        
             alt="Releaf Logo"  
             className="h-16 w-auto"  
           />

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import AppLayout from '@/components/AppLayout';
 import StatCard from '@/components/dashboard/StatCard';
 import StreakCard from '@/components/dashboard/StreakCard';
@@ -12,7 +13,7 @@ import OnboardingModal from '@/components/onboarding/OnboardingModal';
 
 const Dashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   const stats = {
@@ -39,19 +40,26 @@ const Dashboard = () => {
   const recentScans = [];
 
   useEffect(() => {
-    const user = localStorage.getItem('user');
-    const hasCompletedOnboarding = localStorage.getItem('onboarding_completed');
-    
-    setTimeout(() => {
-      const isAuth = !!user;
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      const localUser = localStorage.getItem('user');
+      const isAuth = !!data.session || !!localUser;
       setIsAuthenticated(isAuth);
-      
-      if (isAuth && !hasCompletedOnboarding) {
+
+      if (isAuth && !localStorage.getItem('onboarding_completed')) {
         setShowOnboarding(true);
       }
-      
-      setIsLoading(false);
-    }, 500);
+      setAuthLoading(false);
+    };
+
+    checkAuth();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      const localUser = localStorage.getItem('user');
+      setIsAuthenticated(!!session || !!localUser);
+      setAuthLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const handleOnboardingComplete = () => {
@@ -59,7 +67,7 @@ const Dashboard = () => {
     setShowOnboarding(false);
   };
 
-  if (isLoading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

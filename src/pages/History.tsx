@@ -1,10 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
 import HistoryTimeline from '@/components/history/HistoryTimeline';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
+import PageFade from '@/components/PageFade';
+import { supabase } from '@/integrations/supabase/client';
 
 const History = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -66,13 +67,13 @@ const History = () => {
   const nonRecyclableItems = mockHistoryItems.filter(item => !item.isRecyclable);
 
   useEffect(() => {
-    // Check if user is authenticated
-    const user = localStorage.getItem('user');
-    
-    setTimeout(() => {
-      setIsAuthenticated(!!user);
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      const localUser = localStorage.getItem('user');
+      setIsAuthenticated(!!data.session || !!localUser);
       setIsLoading(false);
-    }, 500);
+    };
+    checkAuth();
   }, []);
 
   if (isLoading) {
@@ -88,46 +89,48 @@ const History = () => {
   }
 
   return (
-    <AppLayout>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Your Recycling History</h1>
-        <p className="text-muted-foreground">
-          Track all your scanned items and recycling activities over time.
-        </p>
-      </div>
+    <PageFade>
+      <AppLayout>
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold mb-2">Your Recycling History</h1>
+          <p className="text-muted-foreground">
+            Track all your scanned items and recycling activities over time.
+          </p>
+        </div>
 
-      <Tabs defaultValue="all" className="w-full">
-        <TabsList className="mb-6">
-          <TabsTrigger value="all">All Items</TabsTrigger>
-          <TabsTrigger value="recyclable">Recyclable</TabsTrigger>
-          <TabsTrigger value="non-recyclable">Non-Recyclable</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="all">
-          <Card>
-            <CardContent className="pt-6">
-              <HistoryTimeline items={allItems} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="recyclable">
-          <Card>
-            <CardContent className="pt-6">
-              <HistoryTimeline items={recyclableItems} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="non-recyclable">
-          <Card>
-            <CardContent className="pt-6">
-              <HistoryTimeline items={nonRecyclableItems} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </AppLayout>
+        <Tabs defaultValue="all" className="w-full">
+          <TabsList className="mb-6">
+            <TabsTrigger value="all">All Items</TabsTrigger>
+            <TabsTrigger value="recyclable">Recyclable</TabsTrigger>
+            <TabsTrigger value="non-recyclable">Non-Recyclable</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="all">
+            <Card>
+              <CardContent className="pt-6">
+                <HistoryTimeline items={allItems} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="recyclable">
+            <Card>
+              <CardContent className="pt-6">
+                <HistoryTimeline items={recyclableItems} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="non-recyclable">
+            <Card>
+              <CardContent className="pt-6">
+                <HistoryTimeline items={nonRecyclableItems} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </AppLayout>
+    </PageFade>
   );
 };
 

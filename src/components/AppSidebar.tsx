@@ -98,7 +98,7 @@ export function AppSidebar() {
         <div className="flex items-center gap-2">
           
         <img
-            src="/Logo.png"        
+            src="/newLogo.png"        
             alt="Releaf Logo"  
             className="h-10 w-auto"  
           />
@@ -121,7 +121,7 @@ export function AppSidebar() {
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <Link to={item.path} className="flex items-center gap-2">
+                    <Link to={item.path} className="flex items-center gap-2 transition duration-200">
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
                     </Link>

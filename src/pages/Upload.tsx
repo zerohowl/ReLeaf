@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import AppLayout from '@/components/AppLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ImageScan from '@/components/upload/ImageScan';
@@ -8,20 +9,43 @@ import TextItemIdentifier from '@/components/upload/TextItemIdentifier';
 
 const Upload = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('scan');
   const [hasGeminiKey, setHasGeminiKey] = useState(false);
 
   useEffect(() => {
-    // Check if user is authenticated
-    const user = localStorage.getItem('user');
-    
-    // Check if Gemini API key is present
+    // Check authentication status via Supabase session
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      const localUser = localStorage.getItem('user');
+      setIsAuthenticated(!!data.session || !!localUser);
+      setIsLoading(false);
+    };
+
+    checkAuth();
+
+    // Listen for auth changes in case session updated elsewhere
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const localUser = localStorage.getItem('user');
+      setIsAuthenticated(!!session || !!localUser);
+      setIsLoading(false);
+    });
+
+    // Check Gemini API key for feature flag
     const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
     setHasGeminiKey(!!geminiKey);
     console.log('Upload component: Gemini API Key present:', !!geminiKey);
-    
-    setIsAuthenticated(!!user);
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" />;

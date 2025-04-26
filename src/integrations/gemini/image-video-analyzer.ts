@@ -13,12 +13,13 @@ const genAI = new GoogleGenerativeAI(geminiApiKey || '');
 
 const analyzeRecyclingAction = async (imageOrVideoBase64: string, isVideo: boolean): Promise<AnalysisResult> => {
   try {
-    const base64Data = imageOrVideoBase64.split(',')[1];
-    if (!base64Data) {
-      throw new Error('Invalid base64 data format');
-    }
+    // parse DataURL into mimeType and base64 payload
+    const [meta, rawBase64] = imageOrVideoBase64.split(",");
+    const base64Data = rawBase64 || '';
+    const mimeMatch = meta.match(/^data:(.*);base64$/);
+    const mimeType = mimeMatch ? mimeMatch[1] : (isVideo ? 'video/mp4' : 'image/jpeg');
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { temperature: 0 } });
 
     if (!isVideo) {
       // First prompt: Validate if the image contains trash/recyclable items
@@ -30,15 +31,10 @@ const analyzeRecyclingAction = async (imageOrVideoBase64: string, isVideo: boole
 
       const validationResult = await model.generateContent([
         validationPrompt,
-        {
-          inlineData: {
-            mimeType: "image/jpeg",
-            data: base64Data
-          }
-        }
+        { inlineData: { mimeType, data: base64Data } }
       ]);
 
-      const validationResponse = validationResult.response.text().toLowerCase();
+      const validationResponse = (await validationResult.response.text()).toLowerCase();
       console.log('Validation response:', validationResponse);
 
       if (!validationResponse.includes('yes')) {
@@ -76,15 +72,10 @@ const analyzeRecyclingAction = async (imageOrVideoBase64: string, isVideo: boole
 
       const recyclabilityResult = await model.generateContent([
         recyclabilityPrompt,
-        {
-          inlineData: {
-            mimeType: "image/jpeg",
-            data: base64Data
-          }
-        }
+        { inlineData: { mimeType, data: base64Data } }
       ]);
 
-      const recyclabilityResponse = recyclabilityResult.response.text().toLowerCase();
+      const recyclabilityResponse = (await recyclabilityResult.response.text()).toLowerCase();
       console.log('Recyclability response:', recyclabilityResponse);
 
       const isRecyclable = recyclabilityResponse.includes('recyclable') && !recyclabilityResponse.includes('not recyclable');
@@ -114,15 +105,10 @@ const analyzeRecyclingAction = async (imageOrVideoBase64: string, isVideo: boole
 
     const result = await model.generateContent([
       prompt,
-      {
-        inlineData: {
-          mimeType: "video/mp4",
-          data: base64Data
-        }
-      }
+      { inlineData: { mimeType, data: base64Data } }
     ]);
 
-    const response = result.response.text().toLowerCase().trim();
+    const response = (await result.response.text()).toLowerCase().trim();
     console.log('Gemini video response:', response);
     
     const isCorrect = response.includes('yes');

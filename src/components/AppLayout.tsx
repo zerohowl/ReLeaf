@@ -1,6 +1,6 @@
 
 import { ReactNode } from 'react';
-import { SidebarProvider } from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarInset, SidebarRail } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 
 interface AppLayoutProps {
@@ -12,9 +12,10 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <AppSidebar />
-        <main className="flex-1 p-6 pt-2 md:p-8">
+        <SidebarRail />
+        <SidebarInset className="p-6 pt-2 md:p-8">
           {children}
-        </main>
+        </SidebarInset>
       </div>
     </SidebarProvider>
   );

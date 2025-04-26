@@ -101,13 +101,19 @@ const Upload = () => {
       });
       
       const base64 = await base64Promise;
+      console.log('Video converted to base64, sending to analyzer...');
+      
       const analysis = await analyzeRecyclingAction(base64 as string, true);
+      console.log('Video analysis result:', analysis);
+      
+      // Mock points system based on AI analysis
+      const points = analysis.isCorrect ? 25 : 0;
       
       toast({
         title: analysis.isCorrect ? "Good job!" : "Incorrect disposal",
         description: analysis.isCorrect 
-          ? "You've correctly disposed of this item and earned 25 points!"
-          : "Please check the recycling guidelines and try again.",
+          ? `You've correctly disposed of this item and earned ${points} points!`
+          : "The AI detected incorrect disposal. Check the recycling guidelines and try again.",
         variant: analysis.isCorrect ? "default" : "destructive",
       });
       
@@ -119,8 +125,8 @@ const Upload = () => {
     } catch (error) {
       console.error('Error processing video:', error);
       toast({
-        title: "Error",
-        description: "Failed to analyze the video. Please try again.",
+        title: "Analysis Error",
+        description: "We couldn't analyze your video. Please ensure it's a short clip (under 30 seconds) clearly showing the recycling action.",
         variant: "destructive",
       });
     } finally {

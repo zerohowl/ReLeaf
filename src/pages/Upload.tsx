@@ -5,6 +5,7 @@ import AppLayout from '@/components/AppLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ImageScan from '@/components/upload/ImageScan';
 import VideoUpload from '@/components/upload/VideoUpload';
+import TextItemIdentifier from '@/components/upload/TextItemIdentifier';
 
 const Upload = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -45,11 +46,18 @@ const Upload = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-6">
           <TabsTrigger value="scan">Scan Item</TabsTrigger>
+          <TabsTrigger value="describe">Describe Item</TabsTrigger>
           <TabsTrigger value="video">Upload Recycling Video</TabsTrigger>
         </TabsList>
         
         <TabsContent value="scan">
           <ImageScan onScanComplete={() => setActiveTab('video')} />
+        </TabsContent>
+        
+        <TabsContent value="describe">
+          <TextItemIdentifier onItemIdentified={() => {
+            // You can handle what happens after item identification
+          }} />
         </TabsContent>
 
         <TabsContent value="video">

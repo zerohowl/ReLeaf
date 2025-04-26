@@ -23,6 +23,7 @@ const OnboardingModal = ({ isOpen, onClose }: OnboardingModalProps) => {
   const handleComplete = (surveyData: Record<string, any>) => {
     // Save survey data to localStorage
     localStorage.setItem('onboarding_survey_data', JSON.stringify(surveyData));
+    localStorage.setItem('onboarding_completed', 'true');
     
     // Show success toast
     toast({
@@ -38,7 +39,7 @@ const OnboardingModal = ({ isOpen, onClose }: OnboardingModalProps) => {
     <Dialog open={isOpen} onOpenChange={(open) => {
       if (!open) onClose();
     }}>
-      <DialogContent className="sm:max-w-md md:max-w-lg">
+      <DialogContent className="sm:max-w-md md:max-w-lg lg:max-w-xl">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl">Welcome to RecycleSmart</DialogTitle>
         </DialogHeader>

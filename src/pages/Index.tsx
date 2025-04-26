@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
@@ -9,27 +8,29 @@ import RecentScansCard from '@/components/dashboard/RecentScansCard';
 import { Award, Calendar, Leaf, Recycle, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import OnboardingModal from '@/components/onboarding/OnboardingModal';
 
 const Dashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
-  // Mock data for dashboard
+  // Empty stats for new users
   const stats = {
-    itemsScanned: 42,
-    recyclableItems: 36,
-    currentStreak: 5,
-    totalPoints: 830,
+    itemsScanned: 0,
+    recyclableItems: 0,
+    currentStreak: 0,
+    totalPoints: 0,
   };
 
-  // Mock data for streak
+  // Empty streak data
   const streakData = {
-    currentStreak: 5,
-    longestStreak: 12,
-    streakDays: [0, 1, 2, 3, 6], // 0 = Sunday, 6 = Saturday
+    currentStreak: 0,
+    longestStreak: 0,
+    streakDays: [],
   };
 
-  // Mock data for leaderboard
+  // Keep existing leaderboard data
   const leaderboardUsers = [
     { name: 'Alex Kim', score: 1245, rank: 1 },
     { name: 'Taylor Swift', score: 1120, rank: 2 },
@@ -38,41 +39,34 @@ const Dashboard = () => {
     { name: 'Mike Peterson', score: 780, rank: 5 },
   ];
 
-  // Mock data for recent scans
-  const recentScans = [
-    {
-      id: '1',
-      name: 'Plastic Bottle',
-      isRecyclable: true,
-      date: '2 hours ago',
-      imageUrl: 'https://images.unsplash.com/photo-1581213779916-8de94d7f3d3e?auto=format&fit=crop&w=200&h=200&q=80'
-    },
-    {
-      id: '2',
-      name: 'Styrofoam Container',
-      isRecyclable: false,
-      date: 'Yesterday',
-      imageUrl: 'https://images.unsplash.com/photo-1591993676692-175b71bd1ed1?auto=format&fit=crop&w=200&h=200&q=80'
-    },
-    {
-      id: '3',
-      name: 'Cardboard Box',
-      isRecyclable: true,
-      date: '2 days ago',
-      imageUrl: 'https://images.unsplash.com/photo-1595864658389-d8e0eea27c5e?auto=format&fit=crop&w=200&h=200&q=80'
-    },
-  ];
+  // Empty recent scans
+  const recentScans = [];
 
   useEffect(() => {
     // Check if user is authenticated
     const user = localStorage.getItem('user');
     
+    // Check if user has completed onboarding
+    const hasCompletedOnboarding = localStorage.getItem('onboarding_completed');
+    
     // Simulate loading delay
     setTimeout(() => {
-      setIsAuthenticated(!!user);
+      const isAuth = !!user;
+      setIsAuthenticated(isAuth);
+      
+      // Show onboarding if user is authenticated but hasn't completed onboarding
+      if (isAuth && !hasCompletedOnboarding) {
+        setShowOnboarding(true);
+      }
+      
       setIsLoading(false);
     }, 500);
   }, []);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem('onboarding_completed', 'true');
+    setShowOnboarding(false);
+  };
 
   if (isLoading) {
     return (
@@ -105,13 +99,12 @@ const Dashboard = () => {
           title="Items Scanned"
           value={stats.itemsScanned}
           icon={<Leaf className="h-6 w-6 text-primary" />}
-          trend={{ value: 12, isPositive: true }}
         />
         <StatCard
           title="Recyclable Items"
           value={stats.recyclableItems}
           icon={<Recycle className="h-6 w-6 text-eco-green" />}
-          description={`${Math.round((stats.recyclableItems / stats.itemsScanned) * 100)}% of total items`}
+          description={stats.itemsScanned > 0 ? `${Math.round((stats.recyclableItems / stats.itemsScanned) * 100)}% of total items` : '0% of total items'}
         />
         <StatCard
           title="Current Streak"
@@ -122,7 +115,6 @@ const Dashboard = () => {
           title="Total Points"
           value={stats.totalPoints}
           icon={<Award className="h-6 w-6 text-eco-yellow" />}
-          trend={{ value: 8, isPositive: true }}
         />
       </div>
 
@@ -144,6 +136,13 @@ const Dashboard = () => {
         <LeaderboardCard users={leaderboardUsers} />
         <RecentScansCard items={recentScans} />
       </div>
+      
+      {showOnboarding && (
+        <OnboardingModal 
+          isOpen={showOnboarding} 
+          onClose={handleOnboardingComplete} 
+        />
+      )}
     </AppLayout>
   );
 };

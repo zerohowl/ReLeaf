@@ -23,6 +23,9 @@ const SignupForm = () => {
       // Simulate successful signup
       localStorage.setItem('user', JSON.stringify({ email, name }));
       
+      // Clear any existing onboarding flag to ensure the modal appears for new user
+      localStorage.removeItem('onboarding_completed');
+      
       setIsLoading(false);
       toast({
         title: "Account created!",

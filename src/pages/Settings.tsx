@@ -7,6 +7,20 @@ import { PrivacySection } from "@/components/settings/PrivacySection";
 import { AppearanceSection } from "@/components/settings/AppearanceSection";
 import { DeleteAccountSection } from "@/components/settings/DeleteAccountSection";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import OnboardingModal from "@/components/onboarding/OnboardingModal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const Settings = () => {
   const [settings, setSettings] = useState({
@@ -14,6 +28,8 @@ const Settings = () => {
     public_profile: true,
     theme: 'light'
   });
+  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -33,6 +49,22 @@ const Settings = () => {
 
     fetchSettings();
   }, []);
+
+  const handleResetData = () => {
+    // Reset all app data except account
+    localStorage.removeItem('onboarding_completed');
+    localStorage.removeItem('onboarding_survey_data');
+    
+    // Add any other data reset logic here
+    
+    toast({
+      title: "Data reset",
+      description: "All your app data has been reset",
+    });
+    
+    // Reload the page to reflect changes
+    window.location.reload();
+  };
 
   return (
     <AppLayout>
@@ -83,6 +115,52 @@ const Settings = () => {
 
           <Card>
             <CardHeader>
+              <CardTitle>Onboarding</CardTitle>
+              <CardDescription>
+                Retake the onboarding survey to update your preferences.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={() => setShowOnboardingModal(true)}>
+                Retake Onboarding Survey
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Reset Data</CardTitle>
+              <CardDescription>
+                Reset all your app data without deleting your account.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive">Reset All Data</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action will reset all your app data including scan history, 
+                      streaks, and preferences. Your account will not be deleted,
+                      but you'll start fresh as if you just signed up.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleResetData}>
+                      Reset All Data
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle>Danger Zone</CardTitle>
               <CardDescription>
                 Permanently delete your account and all associated data.
@@ -94,6 +172,12 @@ const Settings = () => {
           </Card>
         </div>
       </div>
+      
+      {/* Onboarding Modal */}
+      <OnboardingModal 
+        isOpen={showOnboardingModal} 
+        onClose={() => setShowOnboardingModal(false)} 
+      />
     </AppLayout>
   );
 };

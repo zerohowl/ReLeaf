@@ -12,6 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { queryAgents } from '@/integrations/fetch-ai/agents';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -35,16 +36,13 @@ const ChatAssistant = () => {
     setIsLoading(true);
     
     try {
-      // Mock response for now - will be replaced with fetch.ai integration
-      // TODO: Replace with actual fetch.ai API call
-      setTimeout(() => {
-        const assistantMessage = { 
-          role: 'assistant' as const, 
-          content: "I'm your RecycleSmart assistant. I can help answer questions about recycling and environmental topics. This is a placeholder response that will be replaced with fetch.ai agent responses." 
-        };
-        setMessages((prev) => [...prev, assistantMessage]);
-        setIsLoading(false);
-      }, 1000);
+      // Query fetch.ai agents
+      const response = await queryAgents(input);
+      const assistantMessage = { 
+        role: 'assistant' as const, 
+        content: response.text
+      };
+      setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error fetching response:', error);
       toast({
@@ -52,6 +50,7 @@ const ChatAssistant = () => {
         description: "Unable to get a response. Please try again.",
         variant: "destructive",
       });
+    } finally {
       setIsLoading(false);
     }
   };

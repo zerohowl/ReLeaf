@@ -1,13 +1,20 @@
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export const AppearanceSection = ({ initialValue = 'light' }: { initialValue?: string }) => {
-  const [theme, setTheme] = useState(initialValue);
+  const { theme, setTheme } = useTheme();
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (initialValue) {
+      setTheme(initialValue as "light" | "dark" | "system");
+    }
+  }, [initialValue, setTheme]);
 
   const handleThemeChange = async (value: string) => {
     try {
@@ -22,7 +29,7 @@ export const AppearanceSection = ({ initialValue = 'light' }: { initialValue?: s
         return;
       }
 
-      setTheme(value);
+      setTheme(value as "light" | "dark" | "system");
       
       const { error } = await supabase
         .from('user_settings')

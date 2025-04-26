@@ -1,4 +1,3 @@
-
 import { 
   Sidebar, 
   SidebarContent,
@@ -75,7 +74,11 @@ export function AppSidebar() {
         description: "You have been successfully logged out"
       });
       
-      navigate("/login");
+      localStorage.removeItem('user');
+      
+      setTimeout(() => {
+        navigate("/login", { replace: true });
+      }, 100);
     } catch (error) {
       console.error("Logout error:", error);
       toast({

@@ -1,25 +1,42 @@
 
+import { useState, useEffect } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 export const AppearanceSection = ({ initialValue = 'light' }: { initialValue?: string }) => {
+  const [theme, setTheme] = useState(initialValue);
   const { toast } = useToast();
 
   const handleThemeChange = async (value: string) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to update settings",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setTheme(value);
+      
       const { error } = await supabase
         .from('user_settings')
         .update({ theme: value })
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+        .eq('user_id', user.id);
 
       if (error) throw error;
+      
       toast({
         title: "Theme updated",
         description: `Theme set to ${value}`
       });
     } catch (error) {
+      console.error("Theme update error:", error);
       toast({
         title: "Error",
         description: "Failed to update theme",
@@ -29,7 +46,7 @@ export const AppearanceSection = ({ initialValue = 'light' }: { initialValue?: s
   };
 
   return (
-    <RadioGroup defaultValue={initialValue} onValueChange={handleThemeChange}>
+    <RadioGroup defaultValue={theme} onValueChange={handleThemeChange}>
       <div className="flex items-center space-x-2">
         <RadioGroupItem value="light" id="light" />
         <Label htmlFor="light">Light</Label>

@@ -11,18 +11,32 @@ export const PrivacySection = ({ initialValue = true }: { initialValue?: boolean
 
   const handleToggle = async (checked: boolean) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to update settings",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      setIsPublic(checked);
+      
       const { error } = await supabase
         .from('user_settings')
         .update({ public_profile: checked })
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+        .eq('user_id', user.id);
 
       if (error) throw error;
-      setIsPublic(checked);
+      
       toast({
         title: "Settings updated",
         description: `Profile visibility set to ${checked ? 'public' : 'private'}`
       });
     } catch (error) {
+      console.error("Privacy update error:", error);
       toast({
         title: "Error",
         description: "Failed to update privacy settings",

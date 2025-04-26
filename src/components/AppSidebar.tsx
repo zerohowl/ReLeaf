@@ -97,9 +97,13 @@ export function AppSidebar() {
     <Sidebar>
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full eco-gradient flex items-center justify-center">
-            <span className="text-white font-bold">RS</span>
-          </div>
+          
+        <img
+            src="/Logo.png"        
+            alt="Logo"  
+            className="h-10 w-auto"  
+          />
+
           <span className="font-bold text-sidebar-foreground">RecycleSmart</span>
         </div>
         <SidebarTrigger 

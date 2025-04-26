@@ -1,4 +1,3 @@
-
 // This is a placeholder for fetch.ai agent integration
 
 interface AgentResponse {
@@ -7,45 +6,78 @@ interface AgentResponse {
   metadata?: any;
 }
 
-// Communication agent - handles conversation with user
+// Local placeholder agent when no API key is configured
 export const communicationAgent = async (message: string): Promise<AgentResponse> => {
-  console.log('Communication agent received:', message);
-  // This would be replaced with actual fetch.ai API integration
+  console.log('[Fetch.ai] Running in fallback mode – no API key provided.');
   return {
-    text: `This is a placeholder response from the communication agent. In the future, this will connect to fetch.ai agents to provide intelligent responses to: "${message}"`,
-    sourceType: 'communication-agent'
+    text: `I'm running in demo mode – please set a VITE_FETCHAI_API_KEY in your .env to get intelligent answers. You asked: "${message}"`,
+    sourceType: 'local-fallback'
   };
 };
 
-// Information agent - retrieves data from databases
-export const informationAgent = async (query: string): Promise<AgentResponse> => {
-  console.log('Information agent received:', query);
-  // This would be replaced with actual fetch.ai API and MongoDB integration
-  return {
-    text: `This is a placeholder response from the information agent. In the future, this will retrieve information from MongoDB based on: "${query}"`,
-    sourceType: 'information-agent',
-    metadata: { query, timestamp: new Date().toISOString() }
-  };
+// --- REAL FETCH.AI INTEGRATION --- //
+import type { FunctionGroup, Session } from '@fetchai/ai-engine-sdk';
+
+// We load the SDK lazily to avoid bundling if not needed.
+let enginePromise: Promise<any> | null = null;
+
+const getEngine = async () => {
+  const apiKey = import.meta.env.VITE_FETCHAI_API_KEY;
+  if (!apiKey) return null;
+  if (enginePromise) return enginePromise;
+
+  enginePromise = import('@fetchai/ai-engine-sdk').then(({ AiEngine }) => new AiEngine(apiKey));
+  return enginePromise;
 };
 
-// Main agent coordinator function
-export const queryAgents = async (userMessage: string): Promise<AgentResponse> => {
+const fetchAiAgent = async (message: string): Promise<AgentResponse> => {
+  const engine = await getEngine();
+  if (!engine) return communicationAgent(message); // fallback
+
   try {
-    // Simple logic to determine which agent to use
-    // In a real implementation, this would be more sophisticated
-    if (userMessage.toLowerCase().includes('database') || 
-        userMessage.toLowerCase().includes('data') || 
-        userMessage.toLowerCase().includes('information')) {
-      return await informationAgent(userMessage);
-    } else {
-      return await communicationAgent(userMessage);
+    const groups: FunctionGroup[] = await engine.getFunctionGroups();
+    if (!groups || groups.length === 0) {
+      return { text: 'No public agents available at the moment.', sourceType: 'fetchai' };
     }
-  } catch (error) {
-    console.error('Error querying agents:', error);
+
+    const chosenGroup = groups[0]!; // simplistic choice – could be smarter
+    const session: Session = await engine.createSession(chosenGroup.uuid);
+    await session.start(message);
+
+    // Poll for a brief period (max 5 seconds) for a response
+    let accumulated = '';
+    for (let i = 0; i < 5; i++) {
+      await new Promise((res) => setTimeout(res, 1000));
+      const msgs = await session.getMessages();
+      const agentMsgs = msgs.filter((m: any) => m.type === 'agent');
+      if (agentMsgs.length) {
+        accumulated += agentMsgs.map((m: any) => m.text).join(' ');
+        break;
+      }
+    }
+
+    if (!accumulated) {
+      accumulated = 'The agent did not return a response in time. Please try again.';
+    }
+
     return {
-      text: 'Sorry, I encountered an error processing your request. Please try again.',
-      sourceType: 'error'
+      text: accumulated,
+      sourceType: 'fetchai',
+      metadata: { group: chosenGroup.uuid }
+    };
+  } catch (error) {
+    console.error('[Fetch.ai] Error:', error);
+    return {
+      text: 'Error communicating with Fetch.ai agents. Falling back to local response.',
+      sourceType: 'fetchai-error'
     };
   }
 };
 
+// Main agent coordinator function
+export const queryAgents = async (userMessage: string): Promise<AgentResponse> => {
+  return await fetchAiAgent(userMessage);
+};
+
+// Re-export type for convenience
+export type { AgentResponse };

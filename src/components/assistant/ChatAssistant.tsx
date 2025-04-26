@@ -67,7 +67,7 @@ const ChatAssistant = () => {
       <Drawer open={isOpen} onOpenChange={setIsOpen}>
         <DrawerContent className="h-[80vh]">
           <DrawerHeader className="border-b">
-            <DrawerTitle>RecycleSmart Assistant</DrawerTitle>
+            <DrawerTitle>Releaf Assistant</DrawerTitle>
             <DrawerClose />
           </DrawerHeader>
           <div className="flex flex-col h-full p-4">

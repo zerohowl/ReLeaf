@@ -40,7 +40,7 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gradient-to-br from-eco-green/10 to-eco-blue/10">
       <AuthCard
-        title="Welcome back to RecycleSmart"
+        title="Welcome back to Releaf"
         description="Sign in to your account to track your recycling journey"
         footer={
           <div className="text-center mt-4">

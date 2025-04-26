@@ -1,4 +1,3 @@
-
 import { ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 
@@ -16,8 +15,8 @@ const AuthCard = ({ title, description, children, footer }: AuthCardProps) => {
         <div className="flex items-center justify-center mb-6">
 
         <img
-            src="/Logo.png"        
-            alt="Logo"  
+            src="/newLogo.png"        
+            alt="Releaf Logo"  
             className="h-16 w-auto"  
           />
 

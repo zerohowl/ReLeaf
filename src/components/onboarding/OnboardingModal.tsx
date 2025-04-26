@@ -41,7 +41,7 @@ const OnboardingModal = ({ isOpen, onClose }: OnboardingModalProps) => {
     }}>
       <DialogContent className="sm:max-w-md md:max-w-lg lg:max-w-xl">
         <DialogHeader>
-          <DialogTitle className="text-center text-2xl">Welcome to RecycleSmart</DialogTitle>
+          <DialogTitle className="text-center text-2xl">Welcome to Releaf</DialogTitle>
         </DialogHeader>
         
         {step === 1 && (

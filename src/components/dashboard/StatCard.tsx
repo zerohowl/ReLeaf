@@ -17,12 +17,12 @@ interface StatCardProps {
 
 const StatCard = ({ title, value, icon, description, className, trend }: StatCardProps) => {
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card className={cn("glass-card overflow-hidden", className)}>
       <CardContent className="p-6">
         <div className="flex justify-between items-start">
           <div>
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <h3 className="text-2xl font-bold mt-1">{value}</h3>
+            <h3 className="stat-value mt-1">{value}</h3>
             {description && (
               <p className="text-sm text-muted-foreground mt-1">{description}</p>
             )}
@@ -32,7 +32,7 @@ const StatCard = ({ title, value, icon, description, className, trend }: StatCar
                   className={cn(
                     "text-xs font-medium px-2 py-0.5 rounded-full",
                     trend.isPositive
-                      ? "bg-eco-green/20 text-eco-green"
+                      ? "bg-success-green/20 text-success-green"
                       : "bg-destructive/20 text-destructive"
                   )}
                 >
@@ -42,7 +42,7 @@ const StatCard = ({ title, value, icon, description, className, trend }: StatCar
             )}
           </div>
           {icon && (
-            <div className="p-2 bg-primary/10 rounded-md">
+            <div className="p-2 bg-glass-bg rounded-md">
               {icon}
             </div>
           )}

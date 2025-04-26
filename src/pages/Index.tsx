@@ -15,7 +15,6 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  // Empty stats for new users
   const stats = {
     itemsScanned: 0,
     recyclableItems: 0,
@@ -23,14 +22,12 @@ const Dashboard = () => {
     totalPoints: 0,
   };
 
-  // Empty streak data
   const streakData = {
     currentStreak: 0,
     longestStreak: 0,
     streakDays: [],
   };
 
-  // Keep existing leaderboard data
   const leaderboardUsers = [
     { name: 'Alex Kim', score: 1245, rank: 1 },
     { name: 'Taylor Swift', score: 1120, rank: 2 },
@@ -39,22 +36,16 @@ const Dashboard = () => {
     { name: 'Mike Peterson', score: 780, rank: 5 },
   ];
 
-  // Empty recent scans
   const recentScans = [];
 
   useEffect(() => {
-    // Check if user is authenticated
     const user = localStorage.getItem('user');
-    
-    // Check if user has completed onboarding
     const hasCompletedOnboarding = localStorage.getItem('onboarding_completed');
     
-    // Simulate loading delay
     setTimeout(() => {
       const isAuth = !!user;
       setIsAuthenticated(isAuth);
       
-      // Show onboarding if user is authenticated but hasn't completed onboarding
       if (isAuth && !hasCompletedOnboarding) {
         setShowOnboarding(true);
       }
@@ -87,47 +78,47 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Welcome back!</h1>
-        <p className="text-muted-foreground">
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold mb-2 text-gradient">Welcome back!</h1>
+        <p className="text-muted-foreground text-lg">
           Track your recycling progress and make a positive impact on the environment.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
           title="Items Scanned"
           value={stats.itemsScanned}
-          icon={<Leaf className="h-6 w-6 text-primary" />}
+          icon={<Leaf className="h-6 w-6 text-success-green" />}
         />
         <StatCard
           title="Recyclable Items"
           value={stats.recyclableItems}
-          icon={<Recycle className="h-6 w-6 text-eco-green" />}
+          icon={<Recycle className="h-6 w-6 text-success-green" />}
           description={stats.itemsScanned > 0 ? `${Math.round((stats.recyclableItems / stats.itemsScanned) * 100)}% of total items` : '0% of total items'}
         />
         <StatCard
           title="Current Streak"
           value={`${stats.currentStreak} days`}
-          icon={<Calendar className="h-6 w-6 text-eco-blue" />}
+          icon={<Calendar className="h-6 w-6 text-success-green" />}
         />
         <StatCard
           title="Total Points"
           value={stats.totalPoints}
-          icon={<Award className="h-6 w-6 text-eco-yellow" />}
+          icon={<Award className="h-6 w-6 text-success-green" />}
         />
       </div>
 
       <div className="flex justify-center my-8">
         <Link to="/upload">
-          <Button className="flex items-center gap-2 px-6 py-5 text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105">
-            <Upload className="h-5 w-5" />
+          <Button className="glass-panel px-8 py-6 text-lg font-medium hover:bg-success-green/10 hover:border-success-green/30 transition-all hover:scale-105">
+            <Upload className="h-5 w-5 mr-2" />
             Scan New Item
           </Button>
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <StreakCard 
           currentStreak={streakData.currentStreak}
           longestStreak={streakData.longestStreak}

@@ -6,22 +6,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/contexts/ThemeContext";
 
-export const AppearanceSection = ({ initialValue = 'light' }: { initialValue?: string }) => {
+export const AppearanceSection = ({ initialValue = 'light' }: { initialValue?: 'light' | 'dark' }) => {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
 
-  // Only set the theme from initialValue when the component first mounts,
-  // not on every re-render or when navigating back to this page
   useEffect(() => {
     // Only update if there's no active theme (first load) or if initialValue exists and differs
-    if (initialValue && (!theme || (theme !== initialValue && initialValue !== 'system'))) {
-      setTheme(initialValue as "light" | "dark" | "system");
+    if (initialValue && (!theme || theme !== initialValue)) {
+      setTheme(initialValue);
     }
   }, [initialValue, setTheme]);
 
-  const handleThemeChange = async (value: string) => {
-    // First set theme locally - this should work regardless of login status
-    setTheme(value as "light" | "dark" | "system");
+  const handleThemeChange = async (value: 'light' | 'dark') => {
+    // First set theme locally
+    setTheme(value);
     
     try {
       // Then attempt to save to user settings if logged in
@@ -49,7 +47,6 @@ export const AppearanceSection = ({ initialValue = 'light' }: { initialValue?: s
       }
     } catch (error) {
       console.error("Theme update error:", error);
-      // Don't show an error toast since the theme was already changed locally
     }
   };
 
@@ -62,10 +59,6 @@ export const AppearanceSection = ({ initialValue = 'light' }: { initialValue?: s
       <div className="flex items-center space-x-2">
         <RadioGroupItem value="dark" id="dark" />
         <Label htmlFor="dark">Dark</Label>
-      </div>
-      <div className="flex items-center space-x-2">
-        <RadioGroupItem value="system" id="system" />
-        <Label htmlFor="system">System</Label>
       </div>
     </RadioGroup>
   );

@@ -109,7 +109,7 @@ const Settings = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <AppearanceSection initialValue={theme || settings.theme} />
+              <AppearanceSection initialValue={theme} />
             </CardContent>
           </Card>
 

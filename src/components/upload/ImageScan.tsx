@@ -36,11 +36,21 @@ const ImageScan = ({ onScanComplete }: ImageScanProps) => {
       const base64 = await base64Promise;
       const analysis = await analyzeRecyclingAction(base64 as string, false);
       
+      if (!analysis.isCorrect) {
+        toast({
+          title: "Invalid Image",
+          description: analysis.explanation || "Please upload an image of a recyclable or non-recyclable item.",
+          variant: "destructive",
+        });
+        setIsProcessing(false);
+        return;
+      }
+
       const result = {
-        object: 'Plastic Water Bottle',
-        isRecyclable: analysis.isCorrect,
+        object: analysis.objectType || 'Unknown Item',
+        isRecyclable: analysis.isRecyclable || false,
         confidence: analysis.confidence * 100,
-        material: 'PET Plastic',
+        material: 'Analyzing...',
         locations: [
           {
             name: 'Community Recycling Center',
@@ -56,6 +66,15 @@ const ImageScan = ({ onScanComplete }: ImageScanProps) => {
       };
 
       setScanResult(result);
+
+      toast({
+        title: analysis.isRecyclable ? "Recyclable Item!" : "Non-Recyclable Item",
+        description: analysis.explanation || (analysis.isRecyclable ? 
+          "This item can be recycled. Check the locations below." : 
+          "This item should go in the regular trash."),
+        variant: analysis.isRecyclable ? "default" : "destructive",
+      });
+
     } catch (error) {
       console.error('Error processing image:', error);
       toast({
@@ -129,3 +148,4 @@ const ImageScan = ({ onScanComplete }: ImageScanProps) => {
 };
 
 export default ImageScan;
+

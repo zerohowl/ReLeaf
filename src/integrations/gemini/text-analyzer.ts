@@ -15,7 +15,14 @@ const genAI = new GoogleGenerativeAI(geminiApiKey || '');
 export const analyzeItemText = async (description: string): Promise<AnalysisResult> => {
   try {
     if (!geminiApiKey) {
-      throw new Error('Gemini API key not found');
+      console.error('No Gemini API key provided');
+      return {
+        itemName: description,
+        isRecyclable: false,
+        material: 'Unknown',
+        disposalInstructions: 'API key required for detailed analysis',
+        additionalTips: 'Please add a Gemini API key in your environment variables (VITE_GEMINI_API_KEY)'
+      };
     }
 
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
@@ -60,6 +67,13 @@ export const analyzeItemText = async (description: string): Promise<AnalysisResu
     };
   } catch (error) {
     console.error('Error in analyzeItemText:', error);
-    throw error;
+    // Return a fallback response when an error occurs
+    return {
+      itemName: description || 'Unknown item',
+      isRecyclable: false,
+      material: 'Could not determine',
+      disposalInstructions: 'Analysis failed. Try a more detailed description or check your API key.',
+      additionalTips: 'Make sure your VITE_GEMINI_API_KEY environment variable is set correctly.'
+    };
   }
 };

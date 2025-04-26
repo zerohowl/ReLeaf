@@ -7,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { analyzeItemText } from '@/integrations/gemini/text-analyzer';
-import { Loader2, Search } from 'lucide-react';
+import { Loader2, Search, AlertTriangle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface TextItemIdentifierProps {
   onItemIdentified?: (result: any) => void;
@@ -18,6 +19,7 @@ const TextItemIdentifier = ({ onItemIdentified }: TextItemIdentifierProps) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<any>(null);
   const { toast } = useToast();
+  const [apiKeyMissing, setApiKeyMissing] = useState(false);
 
   const handleAnalyze = async () => {
     if (!itemDescription.trim()) {
@@ -30,9 +32,20 @@ const TextItemIdentifier = ({ onItemIdentified }: TextItemIdentifierProps) => {
     }
 
     setIsAnalyzing(true);
+    setApiKeyMissing(false);
+    
     try {
       const analysisResult = await analyzeItemText(itemDescription);
       setResult(analysisResult);
+      
+      if (analysisResult.disposalInstructions.includes('API key required')) {
+        setApiKeyMissing(true);
+        toast({
+          title: "API Key Missing",
+          description: "Please add the Gemini API key to your environment variables",
+          variant: "destructive"
+        });
+      }
       
       if (onItemIdentified) {
         onItemIdentified(analysisResult);
@@ -51,6 +64,15 @@ const TextItemIdentifier = ({ onItemIdentified }: TextItemIdentifierProps) => {
 
   return (
     <div className="space-y-6">
+      {apiKeyMissing && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertTriangle className="h-4 w-4 mr-2" />
+          <AlertDescription>
+            Gemini API key is missing. Add VITE_GEMINI_API_KEY to your environment variables to enable item analysis.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="space-y-2">
         <Label htmlFor="item-description">Describe the item</Label>
         <Textarea

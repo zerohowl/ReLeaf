@@ -22,9 +22,14 @@ import {
   Calendar
 } from "lucide-react";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export function AppSidebar() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
   // Menu items
   const navItems = [
     {
@@ -58,6 +63,28 @@ export function AppSidebar() {
       path: "/settings"
     }
   ];
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out"
+      });
+      
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to log out",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <Sidebar>
@@ -93,7 +120,10 @@ export function AppSidebar() {
       
       <SidebarFooter>
         <div className="p-4">
-          <button className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+          <button 
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+            onClick={handleLogout}
+          >
             <LogOut className="h-5 w-5" />
             <span>Logout</span>
           </button>

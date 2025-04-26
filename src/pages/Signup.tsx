@@ -20,7 +20,7 @@ const Signup = () => {
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gradient-to-br from-eco-green/10 to-eco-blue/10">
       <AuthCard
-        title="Join RecycleSmart"
+        title="Join Releaf"
         description="Create an account to start your recycling journey"
         footer={
           <div className="text-center mt-4">

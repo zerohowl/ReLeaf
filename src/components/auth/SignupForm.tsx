@@ -29,7 +29,7 @@ const SignupForm = () => {
       setIsLoading(false);
       toast({
         title: "Account created!",
-        description: "Welcome to RecycleSmart.",
+        description: "Welcome to Releaf.",
       });
       
       navigate('/');

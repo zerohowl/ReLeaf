@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
@@ -9,7 +8,6 @@ import TextItemIdentifier from '@/components/upload/TextItemIdentifier';
 
 const Upload = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('scan');
   const [hasGeminiKey, setHasGeminiKey] = useState(false);
 
@@ -22,19 +20,8 @@ const Upload = () => {
     setHasGeminiKey(!!geminiKey);
     console.log('Upload component: Gemini API Key present:', !!geminiKey);
     
-    setTimeout(() => {
-      setIsAuthenticated(!!user);
-      setIsLoading(false);
-    }, 500);
+    setIsAuthenticated(!!user);
   }, []);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    );
-  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" />;

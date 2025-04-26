@@ -1,4 +1,3 @@
-
 import { 
   Sidebar, 
   SidebarContent,
@@ -100,11 +99,11 @@ export function AppSidebar() {
           
         <img
             src="/Logo.png"        
-            alt="Logo"  
+            alt="Releaf Logo"  
             className="h-10 w-auto"  
           />
 
-          <span className="font-bold text-sidebar-foreground">RecycleSmart</span>
+          <span className="font-bold text-sidebar-foreground">Releaf</span>
         </div>
         <SidebarTrigger 
           className={`

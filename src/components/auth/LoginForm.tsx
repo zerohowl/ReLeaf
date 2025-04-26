@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 // Mock user database
 const MOCK_USERS = [
   { email: 'user@example.com', password: 'password123', name: 'Demo User' },
-  { email: 'admin@recyclesmart.com', password: 'admin123', name: 'Admin User' }
+  { email: 'admin@releaf.com', password: 'admin123', name: 'Admin User' }
 ];
 
 const LoginForm = () => {
@@ -53,7 +53,7 @@ const LoginForm = () => {
           setIsLoading(false);
           toast({
             title: "Login successful!",
-            description: "Welcome back to RecycleSmart.",
+            description: "Welcome back to Releaf.",
           });
           
           navigate('/');

@@ -10,8 +10,11 @@ export const AppearanceSection = ({ initialValue = 'light' }: { initialValue?: s
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
 
+  // Only set the theme from initialValue when the component first mounts,
+  // not on every re-render or when navigating back to this page
   useEffect(() => {
-    if (initialValue) {
+    // Only update if there's no active theme (first load) or if initialValue exists and differs
+    if (initialValue && (!theme || (theme !== initialValue && initialValue !== 'system'))) {
       setTheme(initialValue as "light" | "dark" | "system");
     }
   }, [initialValue, setTheme]);
@@ -51,7 +54,7 @@ export const AppearanceSection = ({ initialValue = 'light' }: { initialValue?: s
   };
 
   return (
-    <RadioGroup defaultValue={theme} onValueChange={handleThemeChange}>
+    <RadioGroup value={theme} onValueChange={handleThemeChange}>
       <div className="flex items-center space-x-2">
         <RadioGroupItem value="light" id="light" />
         <Label htmlFor="light">Light</Label>

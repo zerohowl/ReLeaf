@@ -19,6 +19,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const root = window.document.documentElement;
     
+    // Apply the theme
     if (theme === "system") {
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
       root.classList.remove("light", "dark");
@@ -28,7 +29,20 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.classList.add(theme);
     }
     
+    // Save theme to localStorage
     localStorage.setItem("theme", theme);
+    
+    // Set up system theme change listener
+    if (theme === "system") {
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const handleChange = (e: MediaQueryListEvent) => {
+        root.classList.remove("light", "dark");
+        root.classList.add(e.matches ? "dark" : "light");
+      };
+      
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    }
   }, [theme]);
 
   return (

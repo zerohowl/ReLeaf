@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import OnboardingModal from "@/components/onboarding/OnboardingModal";
+import { useTheme } from "@/contexts/ThemeContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +28,7 @@ const Settings = () => {
     public_profile: true,
     theme: 'light'
   });
+  const { theme } = useTheme();
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const { toast } = useToast();
 
@@ -42,7 +43,10 @@ const Settings = () => {
           .single();
 
         if (data) {
-          setSettings(data);
+          setSettings(prev => ({
+            ...prev,
+            ...data
+          }));
         }
       }
     };
@@ -51,18 +55,14 @@ const Settings = () => {
   }, []);
 
   const handleResetData = () => {
-    // Reset all app data except account
     localStorage.removeItem('onboarding_completed');
     localStorage.removeItem('onboarding_survey_data');
-    
-    // Add any other data reset logic here
     
     toast({
       title: "Data reset",
       description: "All your app data has been reset",
     });
     
-    // Reload the page to reflect changes
     window.location.reload();
   };
 
@@ -109,7 +109,7 @@ const Settings = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <AppearanceSection initialValue={settings.theme} />
+              <AppearanceSection initialValue={theme || settings.theme} />
             </CardContent>
           </Card>
 
@@ -173,7 +173,6 @@ const Settings = () => {
         </div>
       </div>
       
-      {/* Onboarding Modal */}
       <OnboardingModal 
         isOpen={showOnboardingModal} 
         onClose={() => setShowOnboardingModal(false)} 

@@ -104,8 +104,8 @@ export function AppSidebar() {
         </div>
         <SidebarTrigger 
           className={`
-            ${state === 'collapsed' ? 'bg-eco-green/20 text-eco-green' : ''}
-            hover:bg-eco-green/30 transition-colors duration-200
+            ${state === 'collapsed' ? 'bg-eco-green text-white' : ''} 
+            hover:bg-eco-green hover:text-white transition-colors duration-200
           `}
         />
       </div>

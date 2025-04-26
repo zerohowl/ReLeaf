@@ -6,6 +6,7 @@ interface AnalysisResult {
   confidence: number;
 }
 
+// Use environment variable from Vite
 const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(geminiApiKey || '');
 

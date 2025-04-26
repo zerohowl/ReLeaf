@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -8,6 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { analyzeItemText } from '@/integrations/gemini/text-analyzer';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 
 interface OnboardingSurveyProps {
   onComplete: (data: Record<string, any>) => void;
@@ -52,6 +54,18 @@ const OnboardingSurvey = ({ onComplete, initialData }: OnboardingSurveyProps) =>
   // Tab navigation
   const [activeTab, setActiveTab] = useState('basic');
 
+  const [showCustomHomeType, setShowCustomHomeType] = useState(false);
+  const [customHomeType, setCustomHomeType] = useState('');
+  const [isAnalyzingHome, setIsAnalyzingHome] = useState(false);
+  const [analyzedHomeType, setAnalyzedHomeType] = useState('');
+  
+  const [showCustomVehicle, setShowCustomVehicle] = useState(false);
+  const [customVehicle, setCustomVehicle] = useState('');
+  const [isAnalyzingVehicle, setIsAnalyzingVehicle] = useState(false);
+  const [analyzedVehicleInfo, setAnalyzedVehicleInfo] = useState<{type: string, make: string, model: string} | null>(null);
+
+  const { toast } = useToast();
+
   const handleGoalsChange = (goal: string) => {
     if (recyclingGoals.includes(goal)) {
       setRecyclingGoals(recyclingGoals.filter(g => g !== goal));
@@ -78,6 +92,61 @@ const OnboardingSurvey = ({ onComplete, initialData }: OnboardingSurveyProps) =>
     };
     
     onComplete(surveyData);
+  };
+
+  const analyzeHomeDescription = async () => {
+    if (!customHomeType.trim()) return;
+    
+    setIsAnalyzingHome(true);
+    try {
+      const result = await analyzeItemText(customHomeType);
+      setAnalyzedHomeType(result.itemName);
+      setHomeType(result.itemName.toLowerCase());
+      toast({
+        title: "Home type analyzed",
+        description: "Your description has been processed"
+      });
+    } catch (error) {
+      toast({
+        title: "Analysis failed",
+        description: "Could not analyze your home description",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzingHome(false);
+    }
+  };
+
+  const analyzeVehicleDescription = async () => {
+    if (!customVehicle.trim()) return;
+    
+    setIsAnalyzingVehicle(true);
+    try {
+      const result = await analyzeItemText(customVehicle);
+      const vehicleInfo = {
+        type: result.material || 'unknown',
+        make: result.itemName.split(' ')[0] || '',
+        model: result.itemName.split(' ').slice(1).join(' ') || ''
+      };
+      
+      setAnalyzedVehicleInfo(vehicleInfo);
+      setVehicleType(vehicleInfo.type.toLowerCase());
+      setVehicleMake(vehicleInfo.make);
+      setVehicleModel(vehicleInfo.model);
+      
+      toast({
+        title: "Vehicle analyzed",
+        description: "Your description has been processed"
+      });
+    } catch (error) {
+      toast({
+        title: "Analysis failed",
+        description: "Could not analyze your vehicle description",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzingVehicle(false);
+    }
   };
 
   return (
@@ -151,17 +220,63 @@ const OnboardingSurvey = ({ onComplete, initialData }: OnboardingSurveyProps) =>
 
           <div className="space-y-4">
             <h3 className="font-medium text-lg">What type of home do you live in?</h3>
-            <Select value={homeType} onValueChange={setHomeType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select home type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="apartment">Apartment</SelectItem>
-                <SelectItem value="house">House</SelectItem>
-                <SelectItem value="condo">Condo</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
+            {!showCustomHomeType ? (
+              <>
+                <Select value={homeType} onValueChange={setHomeType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select home type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="apartment">Apartment</SelectItem>
+                    <SelectItem value="house">House</SelectItem>
+                    <SelectItem value="condo">Condo</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowCustomHomeType(true)}
+                  className="mt-2"
+                >
+                  Or describe your home
+                </Button>
+              </>
+            ) : (
+              <div className="space-y-2">
+                <Textarea
+                  placeholder="Describe your home (e.g., 'A modern two-story townhouse with a small garden')"
+                  value={customHomeType}
+                  onChange={(e) => setCustomHomeType(e.target.value)}
+                />
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={analyzeHomeDescription}
+                    disabled={isAnalyzingHome || !customHomeType.trim()}
+                  >
+                    {isAnalyzingHome ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : "Analyze Description"}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setShowCustomHomeType(false);
+                      setCustomHomeType('');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+                {analyzedHomeType && (
+                  <p className="text-sm text-muted-foreground">
+                    Analyzed as: {analyzedHomeType}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
           
           <div className="flex justify-end pt-4">
@@ -227,42 +342,81 @@ const OnboardingSurvey = ({ onComplete, initialData }: OnboardingSurveyProps) =>
             
             {hasVehicle && (
               <div className="space-y-4 pl-6 pt-2">
-                <div>
-                  <Label htmlFor="vehicle-type">Vehicle Type</Label>
-                  <Select value={vehicleType} onValueChange={setVehicleType}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select vehicle type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="gasoline">Gasoline</SelectItem>
-                      <SelectItem value="diesel">Diesel</SelectItem>
-                      <SelectItem value="hybrid">Hybrid</SelectItem>
-                      <SelectItem value="plugin-hybrid">Plug-in Hybrid</SelectItem>
-                      <SelectItem value="electric">Electric</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="vehicle-make">Make</Label>
-                    <Input 
-                      id="vehicle-make" 
-                      value={vehicleMake} 
-                      onChange={(e) => setVehicleMake(e.target.value)}
-                      placeholder="e.g. Toyota, Tesla"
+                {!showCustomVehicle ? (
+                  <>
+                    <div>
+                      <Label htmlFor="vehicle-type">Vehicle Type</Label>
+                      <Select value={vehicleType} onValueChange={setVehicleType}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select vehicle type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="gasoline">Gasoline</SelectItem>
+                          <SelectItem value="diesel">Diesel</SelectItem>
+                          <SelectItem value="hybrid">Hybrid</SelectItem>
+                          <SelectItem value="plugin-hybrid">Plug-in Hybrid</SelectItem>
+                          <SelectItem value="electric">Electric</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="vehicle-make">Make</Label>
+                        <Input 
+                          id="vehicle-make" 
+                          value={vehicleMake} 
+                          onChange={(e) => setVehicleMake(e.target.value)}
+                          placeholder="e.g. Toyota, Tesla"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="vehicle-model">Model</Label>
+                        <Input 
+                          id="vehicle-model" 
+                          value={vehicleModel} 
+                          onChange={(e) => setVehicleModel(e.target.value)}
+                          placeholder="e.g. Prius, Model 3"
+                        />
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="space-y-2">
+                    <Textarea
+                      placeholder="Describe your vehicle (e.g., 'A 2020 Tesla Model 3 electric car')"
+                      value={customVehicle}
+                      onChange={(e) => setCustomVehicle(e.target.value)}
                     />
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={analyzeVehicleDescription}
+                        disabled={isAnalyzingVehicle || !customVehicle.trim()}
+                      >
+                        {isAnalyzingVehicle ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Analyzing...
+                          </>
+                        ) : "Analyze Description"}
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setShowCustomVehicle(false);
+                          setCustomVehicle('');
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                    {analyzedVehicleInfo && (
+                      <p className="text-sm text-muted-foreground">
+                        Analyzed as: {analyzedVehicleInfo.make} {analyzedVehicleInfo.model} ({analyzedVehicleInfo.type})
+                      </p>
+                    )}
                   </div>
-                  <div>
-                    <Label htmlFor="vehicle-model">Model</Label>
-                    <Input 
-                      id="vehicle-model" 
-                      value={vehicleModel} 
-                      onChange={(e) => setVehicleModel(e.target.value)}
-                      placeholder="e.g. Prius, Model 3"
-                    />
-                  </div>
-                </div>
+                )}
               </div>
             )}
           </div>

@@ -12,7 +12,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <AppSidebar />
-        <SidebarRail className="z-50 hover:bg-eco-green/20 after:bg-eco-green/30 after:hover:bg-eco-green after:!w-[4px]" />
+        <SidebarRail className="z-50 hover:bg-eco-green/20 after:bg-eco-green/30 after:hover:bg-eco-green" />
         <SidebarInset className="p-6 pt-2 md:p-8">
           {children}
         </SidebarInset>

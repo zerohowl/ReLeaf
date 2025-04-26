@@ -31,7 +31,7 @@ import { useSidebar } from "@/components/ui/sidebar";
 export function AppSidebar() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { state, toggleSidebar } = useSidebar();
+  const { state } = useSidebar();
   
   // Menu items
   const navItems = [
@@ -94,7 +94,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className="relative">
+    <Sidebar>
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-full eco-gradient flex items-center justify-center">
@@ -141,19 +141,6 @@ export function AppSidebar() {
           </button>
         </div>
       </SidebarFooter>
-
-      {/* Adding a fixed toggle button that appears when sidebar is collapsed */}
-      {state === 'collapsed' && (
-        <div className="fixed top-4 left-4 z-50">
-          <button 
-            onClick={toggleSidebar}
-            className="w-10 h-10 rounded-full bg-eco-green text-white flex items-center justify-center shadow-lg hover:bg-eco-green/90 transition-all"
-            aria-label="Open sidebar"
-          >
-            <PanelLeft className="h-5 w-5" />
-          </button>
-        </div>
-      )}
     </Sidebar>
   );
 }

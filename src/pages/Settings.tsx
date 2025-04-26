@@ -1,8 +1,39 @@
 
+import { useEffect, useState } from "react";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmailNotificationsSection } from "@/components/settings/EmailNotificationsSection";
+import { PrivacySection } from "@/components/settings/PrivacySection";
+import { AppearanceSection } from "@/components/settings/AppearanceSection";
+import { DeleteAccountSection } from "@/components/settings/DeleteAccountSection";
+import { supabase } from "@/integrations/supabase/client";
 
 const Settings = () => {
+  const [settings, setSettings] = useState({
+    email_notifications: true,
+    public_profile: true,
+    theme: 'light'
+  });
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from('user_settings')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        if (data) {
+          setSettings(data);
+        }
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -16,24 +47,25 @@ const Settings = () => {
         <div className="grid gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Profile</CardTitle>
+              <CardTitle>Email Notifications</CardTitle>
               <CardDescription>
-                Manage your personal information and account settings.
+                Manage your email notification preferences.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Email notifications</p>
-                <p className="text-sm text-muted-foreground">
-                  Receive emails about your account activity and recycling milestones.
-                </p>
-              </div>
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Privacy settings</p>
-                <p className="text-sm text-muted-foreground">
-                  Control how your information is displayed and shared.
-                </p>
-              </div>
+            <CardContent>
+              <EmailNotificationsSection initialValue={settings.email_notifications} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Privacy</CardTitle>
+              <CardDescription>
+                Control your profile visibility and privacy settings.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <PrivacySection initialValue={settings.public_profile} />
             </CardContent>
           </Card>
 
@@ -41,13 +73,23 @@ const Settings = () => {
             <CardHeader>
               <CardTitle>Appearance</CardTitle>
               <CardDescription>
-                Customize how the application looks and feels.
+                Customize how the application looks.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Theme settings and display preferences will appear here in a future update.
-              </p>
+              <AppearanceSection initialValue={settings.theme} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Danger Zone</CardTitle>
+              <CardDescription>
+                Permanently delete your account and all associated data.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DeleteAccountSection />
             </CardContent>
           </Card>
         </div>

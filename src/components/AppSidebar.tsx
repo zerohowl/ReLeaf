@@ -31,7 +31,7 @@ import { useSidebar } from "@/components/ui/sidebar";
 export function AppSidebar() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { state } = useSidebar();
+  const { state, toggleSidebar } = useSidebar();
   
   // Menu items
   const navItems = [
@@ -146,7 +146,7 @@ export function AppSidebar() {
       {state === 'collapsed' && (
         <div className="fixed top-4 left-4 z-50">
           <button 
-            onClick={() => document.querySelector('[data-sidebar="rail"]')?.click()}
+            onClick={toggleSidebar}
             className="w-10 h-10 rounded-full bg-eco-green text-white flex items-center justify-center shadow-lg hover:bg-eco-green/90 transition-all"
             aria-label="Open sidebar"
           >

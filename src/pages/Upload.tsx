@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
@@ -8,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { analyzeRecyclingAction } from '@/integrations/gemini/image-video-analyzer';
 
 const Upload = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -38,18 +38,27 @@ const Upload = () => {
     setUploadedVideo(file);
   };
 
-  const processImage = () => {
+  const processImage = async () => {
     if (!uploadedImage) return;
 
     setIsProcessing(true);
     
-    // Mock processing delay
-    setTimeout(() => {
-      // Mock result data
+    try {
+      // Convert image to base64
+      const reader = new FileReader();
+      const base64Promise = new Promise((resolve) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsDataURL(uploadedImage);
+      });
+      
+      const base64 = await base64Promise;
+      const analysis = await analyzeRecyclingAction(base64 as string, false);
+      
+      // Mock result data combined with AI analysis
       const result = {
         object: 'Plastic Water Bottle',
-        isRecyclable: true,
-        confidence: 98,
+        isRecyclable: analysis.isCorrect,
+        confidence: analysis.confidence * 100,
         material: 'PET Plastic',
         locations: [
           {
@@ -66,22 +75,40 @@ const Upload = () => {
       };
 
       setScanResult(result);
+    } catch (error) {
+      console.error('Error processing image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to analyze the image. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsProcessing(false);
-    }, 2000);
+    }
   };
 
-  const processVideo = () => {
+  const processVideo = async () => {
     if (!uploadedVideo) return;
 
     setIsProcessing(true);
     
-    // Mock processing delay
-    setTimeout(() => {
-      setIsProcessing(false);
+    try {
+      // Convert video to base64
+      const reader = new FileReader();
+      const base64Promise = new Promise((resolve) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsDataURL(uploadedVideo);
+      });
+      
+      const base64 = await base64Promise;
+      const analysis = await analyzeRecyclingAction(base64 as string, true);
       
       toast({
-        title: "Video processed successfully!",
-        description: "You've earned 25 points for recycling this item.",
+        title: analysis.isCorrect ? "Good job!" : "Incorrect disposal",
+        description: analysis.isCorrect 
+          ? "You've correctly disposed of this item and earned 25 points!"
+          : "Please check the recycling guidelines and try again.",
+        variant: analysis.isCorrect ? "default" : "destructive",
       });
       
       // Reset the video upload
@@ -89,7 +116,16 @@ const Upload = () => {
       
       // Switch back to scan tab
       setActiveTab('scan');
-    }, 2000);
+    } catch (error) {
+      console.error('Error processing video:', error);
+      toast({
+        title: "Error",
+        description: "Failed to analyze the video. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const resetScan = () => {

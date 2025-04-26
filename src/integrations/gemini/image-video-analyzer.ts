@@ -1,4 +1,3 @@
-
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 interface AnalysisResult {
@@ -9,7 +8,7 @@ interface AnalysisResult {
   explanation?: string;
 }
 
-const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
+const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(geminiApiKey || '');
 
 const analyzeRecyclingAction = async (imageOrVideoBase64: string, isVideo: boolean): Promise<AnalysisResult> => {
@@ -140,4 +139,3 @@ const analyzeRecyclingAction = async (imageOrVideoBase64: string, isVideo: boole
 };
 
 export { analyzeRecyclingAction };
-

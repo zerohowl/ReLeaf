@@ -17,38 +17,36 @@ export const AppearanceSection = ({ initialValue = 'light' }: { initialValue?: s
   }, [initialValue, setTheme]);
 
   const handleThemeChange = async (value: string) => {
+    // First set theme locally - this should work regardless of login status
+    setTheme(value as "light" | "dark" | "system");
+    
     try {
+      // Then attempt to save to user settings if logged in
       const { data: { user } } = await supabase.auth.getUser();
       
-      if (!user) {
+      if (user) {
+        // User is logged in, update their settings in the database
+        const { error } = await supabase
+          .from('user_settings')
+          .update({ theme: value })
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+        
         toast({
-          title: "Error",
-          description: "You must be logged in to update settings",
-          variant: "destructive"
+          title: "Theme updated",
+          description: `Theme set to ${value}`
         });
-        return;
+      } else {
+        // Just show a toast notification without the error
+        toast({
+          title: "Theme updated",
+          description: `Theme set to ${value} (local only)`
+        });
       }
-
-      setTheme(value as "light" | "dark" | "system");
-      
-      const { error } = await supabase
-        .from('user_settings')
-        .update({ theme: value })
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-      
-      toast({
-        title: "Theme updated",
-        description: `Theme set to ${value}`
-      });
     } catch (error) {
       console.error("Theme update error:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update theme",
-        variant: "destructive"
-      });
+      // Don't show an error toast since the theme was already changed locally
     }
   };
 

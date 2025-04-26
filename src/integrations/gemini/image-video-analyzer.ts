@@ -6,7 +6,7 @@ interface AnalysisResult {
   confidence: number;
 }
 
-const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
+const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(geminiApiKey || '');
 
 const analyzeRecyclingAction = async (imageOrVideoBase64: string, isVideo: boolean): Promise<AnalysisResult> => {

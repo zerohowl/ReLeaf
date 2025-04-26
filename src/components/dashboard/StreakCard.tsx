@@ -1,5 +1,7 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface StreakCardProps {
   currentStreak: number;

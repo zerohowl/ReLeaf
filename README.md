@@ -1,73 +1,73 @@
-# Welcome to your Lovable project
+# Recycle Vision Hero
 
-## Project info
+A React application for identifying, categorizing, and tracking recyclable materials using Google Gemini AI.
 
-**URL**: https://lovable.dev/projects/8f1ea723-448b-4814-a099-3a5636a69a18
+## Features
 
-## How can I edit this code?
+- Analyze images and videos for recyclable items
+- Classify items via text input
+- User authentication and profile management with Supabase
+- Real-time feedback with toast notifications
+- Dark/light theme switching
+- Responsive, accessible UI with shadcn-ui and Radix UI
+- Recycling statistics and charts using Recharts
+- Customizable settings: email notifications, appearance, privacy, account deletion
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- Vite + React + TypeScript
+- Tailwind CSS with shadcn-ui & Radix UI
+- Google Gemini Generative AI
+- Supabase (Auth & Database)
+- @tanstack/react-query for data fetching
+- Zod for schema validation
+- Recharts for data visualization
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/8f1ea723-448b-4814-a099-3a5636a69a18) and start prompting.
+## Setup
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- Node.js >=14 & npm
+- Google Gemini API Key
+- Supabase project URL & PUBLISHABLE Key
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Installation
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+# Clone repository
+git clone 
+cd recycle-vision-hero
 
-Follow these steps:
+# Install dependencies
+npm install
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Copy environment variables template
+cp .env.example .env
+# Edit .env: add VITE_GEMINI_API_KEY, VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Environment Variables
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```env
+VITE_GEMINI_API_KEY=<your-gemini-api-key>
+VITE_SUPABASE_URL=<your-supabase-url>
+VITE_SUPABASE_PUBLISHABLE_KEY=<your-supabase-publishable-key>
+```
 
-**Use GitHub Codespaces**
+## Available Scripts
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- `npm run dev` — start development server
+- `npm run build` — build for production
+- `npm run lint` — run ESLint checks
+- `npm run preview` — preview production build locally
 
-## What technologies are used for this project?
+## Contributing
 
-This project is built with:
+Contributions are welcome! Please open an issue or submit a pull request.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## License
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/8f1ea723-448b-4814-a099-3a5636a69a18) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This project is licensed under the MIT License.

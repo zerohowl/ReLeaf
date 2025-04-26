@@ -1,13 +1,12 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { analyzeItemText } from '@/integrations/gemini/text-analyzer';
-import { Loader2, Search, AlertTriangle } from 'lucide-react';
+import { Loader2, Search, AlertTriangle, Info } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface TextItemIdentifierProps {
@@ -20,6 +19,16 @@ const TextItemIdentifier = ({ onItemIdentified }: TextItemIdentifierProps) => {
   const [result, setResult] = useState<any>(null);
   const { toast } = useToast();
   const [apiKeyMissing, setApiKeyMissing] = useState(false);
+  
+  useEffect(() => {
+    // Check API key on component mount
+    const hasApiKey = !!import.meta.env.VITE_GEMINI_API_KEY;
+    setApiKeyMissing(!hasApiKey);
+    
+    if (!hasApiKey) {
+      console.log('TextItemIdentifier: API key is missing');
+    }
+  }, []);
 
   const handleAnalyze = async () => {
     if (!itemDescription.trim()) {
@@ -32,7 +41,6 @@ const TextItemIdentifier = ({ onItemIdentified }: TextItemIdentifierProps) => {
     }
 
     setIsAnalyzing(true);
-    setApiKeyMissing(false);
     
     try {
       const analysisResult = await analyzeItemText(itemDescription);
@@ -69,6 +77,9 @@ const TextItemIdentifier = ({ onItemIdentified }: TextItemIdentifierProps) => {
           <AlertTriangle className="h-4 w-4 mr-2" />
           <AlertDescription>
             Gemini API key is missing. Add VITE_GEMINI_API_KEY to your environment variables to enable item analysis.
+            <div className="mt-2 text-sm">
+              <strong>Note:</strong> After adding the API key, you may need to restart the application for changes to take effect.
+            </div>
           </AlertDescription>
         </Alert>
       )}

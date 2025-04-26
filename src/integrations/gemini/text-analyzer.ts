@@ -10,10 +10,14 @@ interface AnalysisResult {
 }
 
 const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
+console.log('Gemini API Key status:', geminiApiKey ? 'Key is present' : 'Key is missing');
+
 const genAI = new GoogleGenerativeAI(geminiApiKey || '');
 
 export const analyzeItemText = async (description: string): Promise<AnalysisResult> => {
   try {
+    console.log('Starting analysis with API key status:', geminiApiKey ? 'Available' : 'Not available');
+    
     if (!geminiApiKey) {
       console.error('No Gemini API key provided');
       return {

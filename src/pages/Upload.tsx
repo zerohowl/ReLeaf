@@ -11,10 +11,16 @@ const Upload = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('scan');
+  const [hasGeminiKey, setHasGeminiKey] = useState(false);
 
   useEffect(() => {
     // Check if user is authenticated
     const user = localStorage.getItem('user');
+    
+    // Check if Gemini API key is present
+    const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    setHasGeminiKey(!!geminiKey);
+    console.log('Upload component: Gemini API Key present:', !!geminiKey);
     
     setTimeout(() => {
       setIsAuthenticated(!!user);
@@ -41,6 +47,11 @@ const Upload = () => {
         <p className="text-muted-foreground">
           Upload an item to check its recyclability or record your recycling action.
         </p>
+        {!hasGeminiKey && (
+          <p className="text-amber-500 mt-2">
+            Note: Gemini API key not detected. Some features may be limited.
+          </p>
+        )}
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

@@ -94,7 +94,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar>
+    <Sidebar className="relative">
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-full eco-gradient flex items-center justify-center">
@@ -141,6 +141,19 @@ export function AppSidebar() {
           </button>
         </div>
       </SidebarFooter>
+
+      {/* Adding a fixed toggle button that appears when sidebar is collapsed */}
+      {state === 'collapsed' && (
+        <div className="fixed top-4 left-4 z-50">
+          <button 
+            onClick={() => document.querySelector('[data-sidebar="rail"]')?.click()}
+            className="w-10 h-10 rounded-full bg-eco-green text-white flex items-center justify-center shadow-lg hover:bg-eco-green/90 transition-all"
+            aria-label="Open sidebar"
+          >
+            <PanelLeft className="h-5 w-5" />
+          </button>
+        </div>
+      )}
     </Sidebar>
   );
 }

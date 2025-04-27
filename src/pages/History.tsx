@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
 import HistoryTimeline from '@/components/history/HistoryTimeline';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -17,6 +17,7 @@ const History = () => {
   const [historyItems, setHistoryItems] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const navigate = useNavigate();
   
   // Filter by recyclable status
   const allItems = historyItems;
@@ -53,6 +54,10 @@ const History = () => {
   const handleRefresh = () => {
     fetchHistoryItems();
     toast.success('Refreshing history...');
+  };
+
+  const handleScanClick = () => {
+    navigate('/upload');
   };
 
   if (isLoading) {
@@ -108,7 +113,7 @@ const History = () => {
                     <p className="text-muted-foreground mb-4">
                       You haven't uploaded any items yet. Start recycling to build your history!
                     </p>
-                    <Button onClick={() => window.location.href = '/scan'}>Scan an Item</Button>
+                    <Button onClick={handleScanClick}>Scan an Item</Button>
                   </div>
                 ) : (
                   <HistoryTimeline items={allItems} />

@@ -1,5 +1,6 @@
 // leaderboardService.ts - Handles leaderboard data fetching
 import { getToken } from './authService';
+import { leaderboardUsers as dashboardLeaderboard } from '@/pages/Dashboard';
 
 const API_URL = 'http://localhost:4000/api';
 
@@ -58,32 +59,35 @@ export async function getLeaderboard(timeFrame: 'weekly' | 'monthly' | 'all-time
   }
 }
 
-// Fallback data for demo purposes
+// Use the same leaderboard data as Dashboard
 function getFallbackLeaderboardData(timeFrame: string): LeaderboardUser[] {
-  // This is shown if the API fails - the real data comes from the backend
+  // Start with the dashboard leaderboard data
+  let data = dashboardLeaderboard.map((user, index) => ({
+    id: index + 1,
+    name: user.name,
+    score: user.score,
+    rank: user.rank,
+    isCurrentUser: user.name === 'Sean E.' // Mark Sean as the current user
+  }));
+  
+  // Adjust scores based on timeframe
   if (timeFrame === 'weekly') {
-    return [
-      { id: 1, name: "Alex Thompson", score: 450, rank: 1, isCurrentUser: false },
-      { id: 2, name: "Jamie Rodriguez", score: 410, rank: 2, isCurrentUser: false },
-      { id: 3, name: "Taylor Kim", score: 380, rank: 3, isCurrentUser: false },
-      { id: 4, name: "Jordan Smith", score: 350, rank: 4, isCurrentUser: true },
-      { id: 5, name: "Casey Johnson", score: 320, rank: 5, isCurrentUser: false },
-    ];
+    // For weekly, reduce points to roughly 1/3
+    return data.map(user => ({
+      ...user,
+      score: Math.round(user.score / 3)
+    }));
   } else if (timeFrame === 'monthly') {
-    return [
-      { id: 6, name: "Morgan Williams", score: 1250, rank: 1, isCurrentUser: false },
-      { id: 1, name: "Alex Thompson", score: 1150, rank: 2, isCurrentUser: false },
-      { id: 4, name: "Jordan Smith", score: 980, rank: 3, isCurrentUser: true },
-      { id: 3, name: "Taylor Kim", score: 920, rank: 4, isCurrentUser: false },
-      { id: 5, name: "Casey Johnson", score: 870, rank: 5, isCurrentUser: false },
-    ];
+    // For monthly, reduce points slightly
+    return data.map(user => ({
+      ...user,
+      score: Math.round(user.score * 0.9)
+    }));
   } else {
-    return [
-      { id: 6, name: "Morgan Williams", score: 5680, rank: 1, isCurrentUser: false },
-      { id: 7, name: "Riley Chen", score: 4950, rank: 2, isCurrentUser: false },
-      { id: 1, name: "Alex Thompson", score: 4320, rank: 3, isCurrentUser: false },
-      { id: 4, name: "Jordan Smith", score: 3760, rank: 4, isCurrentUser: true },
-      { id: 2, name: "Jamie Rodriguez", score: 3540, rank: 5, isCurrentUser: false },
-    ];
+    // For all-time, increase points
+    return data.map(user => ({
+      ...user,
+      score: Math.round(user.score * 3.5)
+    }));
   }
 }

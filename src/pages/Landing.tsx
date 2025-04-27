@@ -330,25 +330,28 @@ const Landing = () => {
                   {item.step === 1 && (
                     <GifPlaceholder 
                       icon={ClipboardCheck} 
-                      title="Complete the onboarding survey"
+                      title="Upload items to recycle properly"
+                      gifSrc="/productpagegifs/clip1.gif"
                     >
-                      Get personalized recycling tips based on your lifestyle
+                      Scan questionable items for proper recycling guidance
                     </GifPlaceholder>
                   )}
                   {item.step === 2 && (
                     <GifPlaceholder 
                       icon={Camera} 
-                      title="Take a photo or describe your item"
+                      title="AI analyzes your items in real-time"
+                      gifSrc="/productpagegifs/clip2.gif"
                     >
-                      Our AI will analyze and identify your item
+                      Watch as our AI determines recyclability and materials
                     </GifPlaceholder>
                   )}
                   {item.step === 3 && (
                     <GifPlaceholder 
                       icon={Info} 
-                      title="Get detailed recycling instructions"
+                      title="Track your environmental impact"
+                      gifSrc="/productpagegifs/clip3.gif"
                     >
-                      Learn exactly how to dispose of your item properly
+                      View your history and build streaks to save the planet
                     </GifPlaceholder>
                   )}
                   {item.step === 4 && (

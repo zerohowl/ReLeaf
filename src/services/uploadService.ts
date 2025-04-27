@@ -20,6 +20,8 @@ export interface UserUpload {
   mimeType: string;
   description?: string;
   uploadedAt: string;
+  identifiedItem?: string; // Item identified by Gemini
+  recyclingInfo?: string; // Recycling instructions
   history?: UploadHistoryItem[];
   // These will be added after fetching from the server
   isRecyclable?: boolean;
@@ -28,6 +30,10 @@ export interface UserUpload {
   videoUrl?: string;
   date?: Date;
   points?: number;
+  recyclingInstructions?: string; // Formatted recycling instructions
+  materialType?: string; // Material type identified
+  confidence?: number; // AI confidence level
+  scanMethod?: string; // How the item was identified (QR code, AI, etc)
 }
 
 // Helper to handle API responses

@@ -14,6 +14,16 @@ import OnboardingModal from '@/components/onboarding/OnboardingModal';
 import PageTransition from '@/components/PageTransition';
 import BackgroundImage from '@/components/BackgroundImage';
 import { getPersonalization, PersonalizationData, TipCard as TipCardType } from '@/services/surveyService';
+import { getUserUploads, UserUpload } from '@/services/uploadService';
+
+// Define leaderboard users here to share with Leaderboard page
+export const leaderboardUsers = [
+  { name: 'Kevin H.', score: 1245, rank: 1 },
+  { name: 'Turat Z.', score: 1120, rank: 2 },
+  { name: 'Sean E.', score: 980, rank: 3 },
+  { name: 'Enzo G.', score: 875, rank: 4 },
+  { name: 'Ava W.', score: 840, rank: 5 },
+];
 
 const Dashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -22,43 +32,197 @@ const Dashboard = () => {
   const [personalization, setPersonalization] = useState<PersonalizationData | null>(null);
   const [isLoadingPersonalization, setIsLoadingPersonalization] = useState(true);
 
-  // Default stats (will be modified by personalization)
+  // Initialize stats with zeros - will be calculated from real data
   const [stats, setStats] = useState({
-    itemsScanned: 54,
-    recyclableItems: 42,
-    currentStreak: 5,
-    totalPoints: 875,
+    itemsScanned: 0,
+    recyclableItems: 0,
+    currentStreak: 0,
+    totalPoints: 0,
   });
 
   const [streakData, setStreakData] = useState({
-    currentStreak: 5,
-    longestStreak: 9,
-    streakDays: [0, 1, 2, 3, 4, 5, 6], // Days of the week with streak activity
+    currentStreak: 0,
+    longestStreak: 0,
+    streakDays: [] as number[], // Days of the week with streak activity
   });
 
-  const leaderboardUsers = [
-    { name: 'Kevin H.', score: 1245, rank: 1 },
-    { name: 'Turat Z.', score: 1120, rank: 2 },
-    { name: 'Sean E.', score: 980, rank: 3 },
-    { name: 'Enzo G.', score: 875, rank: 4 },
-    { name: 'Ava W.', score: 840, rank: 5 },
-  ];
+  // Use the shared leaderboard users
 
-  // Default score breakdown - will be modified by personalization
+  // Initialize score breakdown with zeros
   const [scoreCategories, setScoreCategories] = useState([
-    { name: 'Daily Streaks', points: 275, percentage: 31, color: 'bg-green-400' },
-    { name: 'Verified Uploads', points: 350, percentage: 40, color: 'bg-blue-400' },
-    { name: 'Hard-to-Recycle Items', points: 175, percentage: 20, color: 'bg-purple-400' },
-    { name: 'Community Bonus', points: 75, percentage: 9, color: 'bg-amber-400' },
+    { name: 'Daily Streaks', points: 0, percentage: 0, color: 'bg-green-400' },
+    { name: 'Verified Uploads', points: 0, percentage: 0, color: 'bg-blue-400' },
+    { name: 'Hard-to-Recycle Items', points: 0, percentage: 0, color: 'bg-purple-400' },
+    { name: 'Community Bonus', points: 0, percentage: 0, color: 'bg-amber-400' },
   ]);
-
+  
   const [tipCards, setTipCards] = useState<TipCardType[]>([]);
+  const [userUploads, setUserUploads] = useState<UserUpload[]>([]);
+  const [isLoadingUploads, setIsLoadingUploads] = useState(true);
 
-  const recentScans = [
-    { id: '1', name: 'Plastic Bottle', isRecyclable: true, date: '2025-04-25', imageUrl: '/items/plastic-bottle.jpg' },
-    { id: '2', name: 'Glass Jar', isRecyclable: true, date: '2025-04-24', imageUrl: '/items/glass-jar.jpg' },
-    { id: '3', name: 'Styrofoam Container', isRecyclable: false, date: '2025-04-23', imageUrl: '/items/styrofoam.jpg' },
-  ];
+  // Calculate streak data from user uploads
+  const calculateStreakData = (uploads: UserUpload[]) => {
+    if (!uploads.length) return { currentStreak: 0, longestStreak: 0, streakDays: [] as number[] };
+    
+    // Sort uploads by date (newest first)
+    const sortedUploads = [...uploads].sort((a, b) => {
+      return new Date(b.date || b.uploadedAt).getTime() - new Date(a.date || a.uploadedAt).getTime();
+    });
+
+    // Get unique dates (by day)
+    const uniqueDates = new Set<string>();
+    sortedUploads.forEach(upload => {
+      const date = new Date(upload.date || upload.uploadedAt);
+      uniqueDates.add(date.toISOString().split('T')[0]);
+    });
+
+    // Convert to array and sort by date (newest first)
+    const dateArray = Array.from(uniqueDates).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+    
+    // Calculate current streak
+    let currentStreak = 0;
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    
+    // Check if user uploaded today or yesterday to initialize streak
+    if (dateArray[0] === today || dateArray[0] === yesterday) {
+      currentStreak = 1;
+      
+      // Check consecutive days before today/yesterday
+      for (let i = 1; i < dateArray.length; i++) {
+        const currentDate = new Date(dateArray[i]);
+        const prevDate = new Date(dateArray[i-1]);
+        
+        // Check if dates are consecutive
+        const diffTime = prevDate.getTime() - currentDate.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 1) {
+          currentStreak++;
+        } else {
+          break;
+        }
+      }
+    }
+    
+    // Calculate longest streak (simplified)
+    const longestStreak = Math.max(currentStreak, Math.min(uploads.length, 3));
+    
+    // Calculate active days
+    const activeDays = new Set<number>();
+    dateArray.forEach(dateStr => {
+      const date = new Date(dateStr);
+      activeDays.add(date.getDay());
+    });
+    
+    return {
+      currentStreak,
+      longestStreak,
+      streakDays: Array.from(activeDays)
+    };
+  };
+
+  // Calculate score breakdown based on user uploads
+  const calculateScoreBreakdown = (uploads: UserUpload[], streakInfo: {currentStreak: number}) => {
+    // Starting points (ensure user always has some activity shown)
+    let streakPoints = 40;
+    let uploadPoints = 0;
+    let hardToRecyclePoints = 0;
+    let communityPoints = 25;
+    
+    // Calculate points from uploads
+    uploads.forEach(upload => {
+      if (upload.points) {
+        uploadPoints += upload.isRecyclable ? Math.round(upload.points * 0.7) : 0;
+        
+        // Hard-to-recycle bonus for certain material types
+        const materialType = upload.materialType || '';
+        if (['glass', 'metal', 'electronic'].includes(materialType)) {
+          hardToRecyclePoints += Math.round(upload.points * 0.3);
+        }
+      }
+    });
+    
+    // Add streak points (10 points per day of streak)
+    streakPoints += streakInfo.currentStreak * 10;
+    
+    // Calculate total and percentages
+    const totalPoints = streakPoints + uploadPoints + hardToRecyclePoints + communityPoints;
+    
+    return {
+      totalScore: totalPoints,
+      categories: [
+      { 
+        name: 'Daily Streaks', 
+        points: streakPoints, 
+        percentage: Math.round((streakPoints / Math.max(totalPoints, 1)) * 100), 
+        color: 'bg-green-400' 
+      },
+      { 
+        name: 'Verified Uploads', 
+        points: uploadPoints, 
+        percentage: Math.round((uploadPoints / Math.max(totalPoints, 1)) * 100), 
+        color: 'bg-blue-400' 
+      },
+      { 
+        name: 'Hard-to-Recycle Items', 
+        points: hardToRecyclePoints, 
+        percentage: Math.round((hardToRecyclePoints / Math.max(totalPoints, 1)) * 100), 
+        color: 'bg-purple-400' 
+      },
+      { 
+        name: 'Community Bonus', 
+        points: communityPoints, 
+        percentage: Math.round((communityPoints / Math.max(totalPoints, 1)) * 100), 
+        color: 'bg-amber-400' 
+      },
+    ]
+    };
+  };
+
+  // Load user uploads and calculate stats
+  useEffect(() => {
+    const fetchUserUploads = async () => {
+      if (isAuthenticated) {
+        setIsLoadingUploads(true);
+        try {
+          const uploads = await getUserUploads();
+          setUserUploads(uploads);
+          
+          // Calculate stats
+          const itemsScanned = uploads.length;
+          const recyclableItems = uploads.filter(upload => upload.isRecyclable).length;
+          let totalPoints = uploads.reduce((total, upload) => total + (upload.points || 0), 0);
+          
+          // Calculate streak data
+          const streakInfo = calculateStreakData(uploads);
+          setStreakData(streakInfo);
+          
+          // Update total points with streak bonus (10 pts per day)
+          totalPoints += streakInfo.currentStreak * 10;
+          
+          // Set stats
+          setStats({
+            itemsScanned,
+            recyclableItems,
+            currentStreak: streakInfo.currentStreak,
+            totalPoints
+          });
+          
+          // Calculate score breakdown
+          const scoreBreakdown = calculateScoreBreakdown(uploads, streakInfo);
+          setScoreCategories(scoreBreakdown.categories);
+          
+        } catch (error) {
+          console.error('Error fetching user uploads:', error);
+        } finally {
+          setIsLoadingUploads(false);
+        }
+      }
+    };
+    
+    fetchUserUploads();
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const auth = isAuth();
@@ -205,21 +369,25 @@ const Dashboard = () => {
             </div>
             
             <div className="lg:col-span-4">
-              <ScoreBreakdownCard 
-                totalScore={stats.totalPoints}
-                categories={scoreCategories}
-              />
-            </div>
-            
-            <div className="lg:col-span-4">
               <LeaderboardCard users={leaderboardUsers} />
             </div>
-            
-            <div className="lg:col-span-12">
-              <RecentScansCard items={recentScans} />
+
+            <div className="lg:col-span-4">
+              <ScoreBreakdownCard 
+                totalScore={stats.totalPoints}
+                categories={scoreCategories} 
+              />
             </div>
           </div>
-          
+
+          <div className="mt-6">
+            <RecentScansCard 
+              items={userUploads.slice(0, 3)} 
+              isLoading={isLoadingUploads}
+              showUploadPrompt={userUploads.length === 0}
+            />
+          </div>
+            
           {showOnboarding && (
             <OnboardingModal 
               isOpen={showOnboarding} 

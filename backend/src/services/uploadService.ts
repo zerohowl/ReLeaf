@@ -21,9 +21,21 @@ const geminiModel = genAI ? genAI.getGenerativeModel({ model: "gemini-1.5-flash"
 // Base directory for all uploads
 const UPLOAD_DIR = path.join(__dirname, '../../uploads');
 
-// Ensure upload directories exist
-fs.ensureDirSync(path.join(UPLOAD_DIR, 'images'));
-fs.ensureDirSync(path.join(UPLOAD_DIR, 'videos'));
+// Ensure upload directories exist and log their paths
+console.log(`Initializing upload directories at: ${UPLOAD_DIR}`);
+try {
+  console.log(`Creating images directory at: ${path.join(UPLOAD_DIR, 'images')}`);
+  fs.ensureDirSync(path.join(UPLOAD_DIR, 'images'));
+  console.log(`Creating videos directory at: ${path.join(UPLOAD_DIR, 'videos')}`);
+  fs.ensureDirSync(path.join(UPLOAD_DIR, 'videos'));
+  // Test write permissions
+  const testFile = path.join(UPLOAD_DIR, '.test-write');
+  fs.writeFileSync(testFile, 'test');
+  fs.unlinkSync(testFile);
+  console.log('Write permissions verified ✅');
+} catch (error) {
+  console.error('Error initializing upload directories:', error);
+}
 
 interface FileUploadResult {
   id: number;
@@ -150,9 +162,24 @@ export async function processUpload(
       finalFullPath = path.join(UPLOAD_DIR, processedFilePath);
       finalFileSize = processedBuffer.length;
 
-      // Save the processed buffer
-      await fs.writeFile(finalFullPath, processedBuffer);
-      console.log(`Saved processed image to: ${finalFullPath}`);
+      // Save the processed buffer with extra error handling
+      try {
+        // Make sure the parent directory exists
+        await fs.ensureDir(path.dirname(finalFullPath));
+        
+        // Save the file with explicit permissions
+        await fs.writeFile(finalFullPath, processedBuffer, { mode: 0o644 });
+        
+        // Verify the file was created
+        const fileStats = await fs.stat(finalFullPath);
+        console.log(`✅ Successfully saved processed image to: ${finalFullPath}`);
+        console.log(`   File size: ${fileStats.size} bytes`);
+        console.log(`   File permissions: ${fileStats.mode}`);
+      } catch (error) {
+        const fileError = error as Error;
+        console.error(`❌ Error saving processed image to ${finalFullPath}:`, fileError);
+        throw new Error(`Failed to save image file: ${fileError.message}`);
+      }
       
       // --- Gemini Image Analysis ---
       
@@ -224,9 +251,24 @@ export async function processUpload(
       finalFullPath = path.join(UPLOAD_DIR, processedFilePath);
       finalFileSize = file.size; // Keep original size
 
-      // Save the original buffer (using mv is simpler for express-fileupload)
-      await file.mv(finalFullPath); 
-      console.log(`Saved original file to: ${finalFullPath}`);
+      // Save the original buffer (with error handling)
+      try {
+        // Make sure the parent directory exists
+        await fs.ensureDir(path.dirname(finalFullPath));
+        
+        // Save using express-fileupload's mv method
+        await file.mv(finalFullPath);
+        
+        // Verify the file was created
+        const fileStats = await fs.stat(finalFullPath);
+        console.log(`✅ Successfully saved original file to: ${finalFullPath}`);
+        console.log(`   File size: ${fileStats.size} bytes`);
+        console.log(`   File permissions: ${fileStats.mode}`);
+      } catch (error) {
+        const fileError = error as Error;
+        console.error(`❌ Error saving original file to ${finalFullPath}:`, fileError);
+        throw new Error(`Failed to save original file: ${fileError.message}`);
+      }
       
       // No analysis for videos
       analysisResult = null;
@@ -235,29 +277,54 @@ export async function processUpload(
 
     
     // Save file info to database using processed details
-    const upload = await prisma.upload.create({
-      data: {
-        userId,
-        fileType,
-        fileName: processedFileName, // Use processed name
-        filePath: processedFilePath, // Use processed path
-        fileSize: finalFileSize,    // Use processed size
-        mimeType: processedMimeType, // Use processed MIME type
-        description,
-        // Cast to Prisma.InputJsonValue to avoid type errors
-        identifiedItem: analysisResult?.identifiedItem as string, // Add analysis results
-        recyclingInfo: analysisResult?.recyclingInfo as string,   // Add analysis results
-        history: {
-          create: {
-            action: 'created',
-            metadata: JSON.stringify({
-              originalName: originalFileName, // Store original name
-              timestamp: new Date().toISOString()
-            })
+    console.log('Creating database record with the following data:');
+    console.log(`  userId: ${userId}`);
+    console.log(`  fileType: ${fileType}`);
+    console.log(`  fileName: ${processedFileName}`);
+    console.log(`  filePath: ${processedFilePath}`);
+    console.log(`  fileSize: ${finalFileSize}`);
+    console.log(`  mimeType: ${processedMimeType}`);
+    
+    let upload;
+    try {
+      upload = await prisma.upload.create({
+        data: {
+          userId,
+          fileType,
+          fileName: processedFileName, // Use processed name
+          filePath: processedFilePath, // Use processed path
+          fileSize: finalFileSize,    // Use processed size
+          mimeType: processedMimeType, // Use processed MIME type
+          description,
+          // Cast to Prisma.InputJsonValue to avoid type errors
+          identifiedItem: analysisResult?.identifiedItem as string, // Add analysis results
+          recyclingInfo: analysisResult?.recyclingInfo as string,   // Add analysis results
+          history: {
+            create: {
+              action: 'created',
+              metadata: JSON.stringify({
+                originalName: originalFileName, // Store original name
+                timestamp: new Date().toISOString()
+              })
+            }
           }
         }
+      });
+      console.log(`✅ Successfully created database record with ID: ${upload.id}`);
+    } catch (error) {
+      const dbError = error as Error;
+      console.error('❌ Database error while creating upload record:', dbError);
+      // If we created the file but database failed, try to clean up
+      if (finalFullPath) {
+        try {
+          await fs.remove(finalFullPath);
+          console.log(`Cleaned up file at ${finalFullPath} after database error`);
+        } catch (cleanupError) {
+          console.error(`Failed to clean up file at ${finalFullPath}:`, cleanupError);
+        }
       }
-    });
+      throw new Error(`Failed to create database record: ${dbError.message}`);
+    }
     
     return {
       id: upload.id,

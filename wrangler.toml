@@ -1,0 +1,6 @@
+# wrangler.toml
+name = "releaf-recycling-app"
+compatibility_date = "2025-04-27"
+
+[site]
+bucket = "./dist"

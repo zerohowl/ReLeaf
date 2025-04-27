@@ -10,6 +10,8 @@ import { Award, Calendar, Leaf, Recycle, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import OnboardingModal from '@/components/onboarding/OnboardingModal';
+import PageTransition from '@/components/PageTransition';
+import BackgroundImage from '@/components/BackgroundImage';
 
 const Dashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -85,37 +87,39 @@ const Dashboard = () => {
   }
 
   return (
-    <AppLayout>
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2 text-gradient">Welcome back!</h1>
-        <p className="text-muted-foreground text-lg">
-          Track your recycling progress and make a positive impact on the environment.
-        </p>
-      </div>
+    <PageTransition>
+      <BackgroundImage blurred={true}>
+        <AppLayout>
+          <div className="mb-8 space-y-4">
+            <h1 className="text-4xl font-bold mb-2 text-gradient">Welcome back!</h1>
+            <p className="text-muted-foreground text-lg">
+              Track your recycling progress and make a positive impact on the environment.
+            </p>
+          </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard
-          title="Items Scanned"
-          value={stats.itemsScanned}
-          icon={<Leaf className="h-6 w-6 text-success-green" />}
-        />
-        <StatCard
-          title="Recyclable Items"
-          value={stats.recyclableItems}
-          icon={<Recycle className="h-6 w-6 text-success-green" />}
-          description={stats.itemsScanned > 0 ? `${Math.round((stats.recyclableItems / stats.itemsScanned) * 100)}% of total items` : '0% of total items'}
-        />
-        <StatCard
-          title="Current Streak"
-          value={`${stats.currentStreak} days`}
-          icon={<Calendar className="h-6 w-6 text-success-green" />}
-        />
-        <StatCard
-          title="Total Points"
-          value={stats.totalPoints}
-          icon={<Award className="h-6 w-6 text-success-green" />}
-        />
-      </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <StatCard
+              title="Items Scanned"
+              value={stats.itemsScanned}
+              icon={<Leaf className="h-6 w-6 text-success-green" />}
+            />
+            <StatCard
+              title="Recyclable Items"
+              value={stats.recyclableItems}
+              icon={<Recycle className="h-6 w-6 text-success-green" />}
+              description={stats.itemsScanned > 0 ? `${Math.round((stats.recyclableItems / stats.itemsScanned) * 100)}% of total items` : '0% of total items'}
+            />
+            <StatCard
+              title="Current Streak"
+              value={`${stats.currentStreak} days`}
+              icon={<Calendar className="h-6 w-6 text-success-green" />}
+            />
+            <StatCard
+              title="Total Points"
+              value={stats.totalPoints}
+              icon={<Award className="h-6 w-6 text-success-green" />}
+            />
+          </div>
 
       <div className="flex justify-center my-8">
         <Link to="/upload">
@@ -143,6 +147,8 @@ const Dashboard = () => {
         />
       )}
     </AppLayout>
+      </BackgroundImage>
+    </PageTransition>
   );
 };
 

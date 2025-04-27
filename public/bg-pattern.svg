@@ -1,0 +1,18 @@
+<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="leafPattern" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+      <!-- Leaf 1 -->
+      <path d="M30,120 Q60,90 50,50 Q80,80 100,60 Q70,100 80,150 Z" fill="rgba(96, 196, 85, 0.15)" />
+      
+      <!-- Leaf 2 -->
+      <path d="M150,50 Q120,80 130,120 Q100,100 80,120 Q110,80 100,30 Z" fill="rgba(96, 196, 85, 0.12)" />
+      
+      <!-- Recycling symbol shapes -->
+      <path d="M180,140 A30,30 0 1,1 120,140 A30,30 0 1,1 180,140" stroke="rgba(79, 180, 199, 0.15)" fill="none" stroke-width="3" />
+      <path d="M80,180 A25,25 0 1,1 30,180 A25,25 0 1,1 80,180" stroke="rgba(79, 180, 199, 0.12)" fill="none" stroke-width="2" />
+    </pattern>
+  </defs>
+  
+  <!-- Background with gradient -->
+  <rect width="100%" height="100%" fill="url(#leafPattern)" />
+</svg>

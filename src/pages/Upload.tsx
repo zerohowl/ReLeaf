@@ -6,6 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ImageScan from '@/components/upload/ImageScan';
 import VideoUpload from '@/components/upload/VideoUpload';
 import TextItemIdentifier from '@/components/upload/TextItemIdentifier';
+import PageTransition from '@/components/PageTransition';
+import BackgroundImage from '@/components/BackgroundImage';
 
 const Upload = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -52,7 +54,9 @@ const Upload = () => {
   }
 
   return (
-    <AppLayout>
+    <PageTransition>
+      <BackgroundImage blurred={true}>
+        <AppLayout>
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">Upload & Scan</h1>
         <p className="text-muted-foreground">
@@ -86,7 +90,9 @@ const Upload = () => {
           <VideoUpload onUploadComplete={() => setActiveTab('scan')} />
         </TabsContent>
       </Tabs>
-    </AppLayout>
+        </AppLayout>
+      </BackgroundImage>
+    </PageTransition>
   );
 };
 

@@ -4,7 +4,8 @@ import AppLayout from '@/components/AppLayout';
 import HistoryTimeline from '@/components/history/HistoryTimeline';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import PageFade from '@/components/PageFade';
+import PageTransition from '@/components/PageTransition';
+import BackgroundImage from '@/components/BackgroundImage';
 import { supabase } from '@/integrations/supabase/client';
 
 const History = () => {
@@ -89,8 +90,9 @@ const History = () => {
   }
 
   return (
-    <PageFade>
-      <AppLayout>
+    <PageTransition>
+      <BackgroundImage blurred={true}>
+        <AppLayout>
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2">Your Recycling History</h1>
           <p className="text-muted-foreground">
@@ -129,8 +131,9 @@ const History = () => {
             </Card>
           </TabsContent>
         </Tabs>
-      </AppLayout>
-    </PageFade>
+        </AppLayout>
+      </BackgroundImage>
+    </PageTransition>
   );
 };
 

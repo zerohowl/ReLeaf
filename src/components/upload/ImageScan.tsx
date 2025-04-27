@@ -4,21 +4,36 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import UploadZone from './UploadZone';
 import ScanResult from './ScanResult';
-import { analyzeRecyclingAction } from '@/integrations/gemini/image-video-analyzer';
+import { analyzeMedia } from '@/services/analysisService';
 import jsQR from 'jsqr';
 
 export interface ImageScanProps {
+  uploadedImage?: File | null;
+  setUploadedImage?: (file: File | null) => void;
+  scanResult?: any | null;
+  setScanResult?: (result: any | null) => void;
+  isProcessing?: boolean;
+  setIsProcessing?: (processing: boolean) => void;
   onScanComplete?: () => void;
 }
 
-const ImageScan = ({ onScanComplete }: ImageScanProps) => {
-  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
-  const [scanResult, setScanResult] = useState<any | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+const ImageScan = ({ 
+  uploadedImage = null, 
+  setUploadedImage = () => {}, 
+  scanResult = null, 
+  setScanResult = () => {}, 
+  isProcessing = false, 
+  setIsProcessing = () => {}, 
+  onScanComplete 
+}: ImageScanProps) => {
   const { toast } = useToast();
+  
+  // Use the props for state instead of internal state
 
   const handleImageUpload = (file: File) => {
     setUploadedImage(file);
+    // Clear any previous scan results when a new image is uploaded
+    setScanResult(null);
   };
 
   const processImage = async () => {
@@ -55,7 +70,8 @@ const ImageScan = ({ onScanComplete }: ImageScanProps) => {
           return;
         }
       }
-      const analysis = await analyzeRecyclingAction(base64 as string, false);
+      // Use our new secure backend service instead of direct Gemini integration
+      const analysis = await analyzeMedia(base64 as string, false);
       
       if (!analysis.isCorrect) {
         toast({

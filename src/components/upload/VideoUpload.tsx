@@ -4,16 +4,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import UploadZone from './UploadZone';
-import { analyzeRecyclingAction } from '@/integrations/gemini/image-video-analyzer';
+import { analyzeMedia } from '@/services/analysisService';
 
 export interface VideoUploadProps {
+  uploadedVideo?: File | null;
+  setUploadedVideo?: (file: File | null) => void;
+  isProcessing?: boolean;
+  setIsProcessing?: (processing: boolean) => void;
   onUploadComplete?: () => void;
 }
 
-const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
-  const [uploadedVideo, setUploadedVideo] = useState<File | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+const VideoUpload = ({ 
+  uploadedVideo = null, 
+  setUploadedVideo = () => {}, 
+  isProcessing = false, 
+  setIsProcessing = () => {}, 
+  onUploadComplete 
+}: VideoUploadProps) => {
   const { toast } = useToast();
+  
+  // Use the props for state instead of internal state
 
   const handleVideoUpload = (file: File) => {
     setUploadedVideo(file);
@@ -34,7 +44,8 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
       const base64 = await base64Promise;
       console.log('Video converted to base64, sending to analyzer...');
       
-      const analysis = await analyzeRecyclingAction(base64 as string, true);
+      // Use our new secure backend service instead of direct Gemini integration
+      const analysis = await analyzeMedia(base64 as string, true);
       console.log('Video analysis result:', analysis);
       
       const points = analysis.isCorrect ? 25 : 0;

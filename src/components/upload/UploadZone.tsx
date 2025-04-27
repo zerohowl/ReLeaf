@@ -1,6 +1,6 @@
 
 import { useState, useRef } from 'react';
-import { Upload, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -108,7 +108,7 @@ const UploadZone = ({ onFileSelected, type, className }: UploadZoneProps) => {
             onChange={handleChange}
             className="hidden"
           />
-          <Upload className="h-10 w-10 text-muted-foreground mb-2" />
+          {/* Upload icon removed */}
           <p className="text-center text-muted-foreground font-medium">
             <span className="text-primary">Click to upload</span> or drag and drop
           </p>

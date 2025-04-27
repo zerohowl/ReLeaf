@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import BackgroundImage from '@/components/BackgroundImage';
-import { Zap, Camera, MessageCircle, Video, Trophy, Leaf } from 'lucide-react';
+import { Zap, Camera, MessageCircle, Video, Trophy, Leaf, ClipboardCheck, Upload, Info, Award } from 'lucide-react';
+import GifPlaceholder from '@/components/placeholders/GifPlaceholder';
 import { LucideIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ChatAssistant from '@/components/assistant/ChatAssistant';
@@ -290,8 +291,8 @@ const Landing = () => {
                 <p className="text-base text-muted-foreground">Tons of plastic landfilled in 2018 (EPA).</p>
               </div>
               <div>
-                <p className="text-5xl font-bold text-eco-green mb-2">Up to 90%</p>
-                <p className="text-base text-muted-foreground">Reduction in contamination with real-time info.</p>
+                <p className="text-5xl font-bold text-eco-green mb-2">50%</p>
+                <p className="text-base text-muted-foreground">With this website we could get an increase of 50% in half a year.</p>
               </div>
             </motion.div>
           </div>
@@ -325,7 +326,39 @@ const Landing = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-xl mb-2">{item.title}</h3>
-                  <p className="text-muted-foreground">{item.description}</p>
+                  <p className="text-muted-foreground mb-4">{item.description}</p>
+                  {item.step === 1 && (
+                    <GifPlaceholder 
+                      icon={ClipboardCheck} 
+                      title="Complete the onboarding survey"
+                    >
+                      Get personalized recycling tips based on your lifestyle
+                    </GifPlaceholder>
+                  )}
+                  {item.step === 2 && (
+                    <GifPlaceholder 
+                      icon={Camera} 
+                      title="Take a photo or describe your item"
+                    >
+                      Our AI will analyze and identify your item
+                    </GifPlaceholder>
+                  )}
+                  {item.step === 3 && (
+                    <GifPlaceholder 
+                      icon={Info} 
+                      title="Get detailed recycling instructions"
+                    >
+                      Learn exactly how to dispose of your item properly
+                    </GifPlaceholder>
+                  )}
+                  {item.step === 4 && (
+                    <GifPlaceholder 
+                      icon={Award} 
+                      title="Build streaks and compete"
+                    >
+                      Track your progress and climb the leaderboard
+                    </GifPlaceholder>
+                  )}
                 </div>
               </motion.div>
             ))}

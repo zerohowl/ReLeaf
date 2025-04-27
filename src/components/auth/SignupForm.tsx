@@ -21,17 +21,20 @@ const SignupForm = () => {
 
     try {
       // Register the user with our backend service
-      await register({ email, password, name });
+      const result = await register({ email, password, name });
       
-      // Clear any existing onboarding flag to ensure the modal appears for new user
-      localStorage.removeItem('onboarding_completed');
-      
-      toast({
-        title: "Account created!",
-        description: "Welcome to Releaf.",
-      });
-      
-      navigate('/dashboard');
+      // Only proceed if registration was successful
+      if (result) {
+        // Clear any existing onboarding flag to ensure the modal appears for new user
+        localStorage.removeItem('onboarding_completed');
+        
+        toast({
+          title: "Account created!",
+          description: "Welcome to Releaf.",
+        });
+        
+        navigate('/dashboard');
+      }
     } catch (error: any) {
       console.error("Registration error:", error);
       toast({

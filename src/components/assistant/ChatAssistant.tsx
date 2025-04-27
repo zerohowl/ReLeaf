@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
 import { 
@@ -8,15 +8,17 @@ import {
   DialogTitle,
   DialogClose
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { queryAgents } from '@/integrations/fetch-ai/agents';
+import { sendChatMessage, AgentResponse } from '@/services/chatService';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  timestamp?: number;
 }
+
+const STORAGE_KEY = 'releaf_chat_history';
 
 const ChatAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,29 +26,68 @@ const ChatAssistant = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  
+  // Load chat history from localStorage when component mounts
+  useEffect(() => {
+    try {
+      const savedMessages = localStorage.getItem(STORAGE_KEY);
+      if (savedMessages) {
+        setMessages(JSON.parse(savedMessages));
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+      // Don't show error to user, just continue with empty chat
+    }
+  }, []);
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    try {
+      if (messages.length > 0) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+      }
+    } catch (error) {
+      console.error('Error saving chat history:', error);
+    }
+  }, [messages]);
 
   const handleSendMessage = async () => {
     if (!input.trim()) return;
     
     // Add user message to chat
-    const userMessage = { role: 'user' as const, content: input };
+    const userMessage = { 
+      role: 'user' as const, 
+      content: input,
+      timestamp: Date.now() 
+    };
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
     
     try {
-      // Query fetch.ai agents
-      const response = await queryAgents(input);
+      // Use our secure backend service instead of direct Fetch.ai integration
+      const response: AgentResponse = await sendChatMessage(input);
+      
       const assistantMessage = { 
         role: 'assistant' as const, 
-        content: response.text
+        content: response.text,
+        timestamp: Date.now()
       };
       setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching response:', error);
+      
+      // Add error message to chat instead of just showing toast
+      const errorMessage = { 
+        role: 'assistant' as const, 
+        content: 'Sorry, I encountered an error. Please try again later.',
+        timestamp: Date.now()
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+      
       toast({
-        title: "Error",
-        description: "Unable to get a response. Please try again.",
+        title: "Connection Error",
+        description: error.message || "Unable to get a response. Please try again.",
         variant: "destructive",
       });
     } finally {

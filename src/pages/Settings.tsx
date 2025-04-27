@@ -7,7 +7,7 @@ import { EmailNotificationsSection } from "@/components/settings/EmailNotificati
 import { PrivacySection } from "@/components/settings/PrivacySection";
 import { AppearanceSection } from "@/components/settings/AppearanceSection";
 import { DeleteAccountSection } from "@/components/settings/DeleteAccountSection";
-import { supabase } from "@/integrations/supabase/client";
+import { resetUserData, getSettings } from "@/services/settingsService";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import OnboardingModal from "@/components/onboarding/OnboardingModal";
@@ -36,36 +36,59 @@ const Settings = () => {
 
   useEffect(() => {
     const fetchSettings = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data } = await supabase
-          .from('user_settings')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
-
-        if (data) {
-          setSettings(prev => ({
-            ...prev,
-            ...data
-          }));
-        }
+      try {
+        // Use our custom settings service instead of Supabase
+        const userSettings = await getSettings();
+        
+        setSettings(prev => ({
+          ...prev,
+          public_profile: userSettings.public_profile
+        }));
+      } catch (error) {
+        console.error('Error fetching settings:', error);
+        toast({
+          title: "Failed to load settings",
+          description: "Your settings could not be loaded.",
+          variant: "destructive"
+        });
       }
     };
 
     fetchSettings();
-  }, []);
+  }, [toast]);
 
-  const handleResetData = () => {
-    localStorage.removeItem('onboarding_completed');
-    localStorage.removeItem('onboarding_survey_data');
-    
-    toast({
-      title: "Data reset",
-      description: "All your app data has been reset",
-    });
-    
-    window.location.reload();
+  const handleResetData = async () => {
+    try {
+      // Show loading toast
+      toast({
+        title: "Resetting data...",
+        description: "Please wait while we reset your data",
+      });
+      
+      // Call the backend API to reset user data
+      await resetUserData();
+      
+      // Clear local storage items
+      localStorage.removeItem('onboarding_completed');
+      localStorage.removeItem('onboarding_survey_data');
+      
+      toast({
+        title: "Data reset complete",
+        description: "All your app data has been reset. Refreshing page...",
+      });
+      
+      // Wait a moment then reload the page
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } catch (error) {
+      console.error('Error resetting data:', error);
+      toast({
+        title: "Reset failed",
+        description: "Failed to reset your data. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (

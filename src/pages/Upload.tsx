@@ -1,20 +1,28 @@
 import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import AppLayout from '@/components/AppLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ImageScan from '@/components/upload/ImageScan';
 import VideoUpload from '@/components/upload/VideoUpload';
 import TextItemIdentifier from '@/components/upload/TextItemIdentifier';
+import UploadForm from '@/components/upload/UploadForm';
 import PageTransition from '@/components/PageTransition';
 import BackgroundImage from '@/components/BackgroundImage';
 import { isAuthenticated as isAuth } from '@/services/authService';
+import { useToast } from '@/hooks/use-toast';
 
 const Upload = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('scan');
   const [hasGeminiKey, setHasGeminiKey] = useState(false);
+  
+  // Shared state to persist across tab switches
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [scanResult, setScanResult] = useState<any | null>(null);
+  const [uploadedVideo, setUploadedVideo] = useState<File | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const auth = isAuth();
@@ -55,6 +63,9 @@ const Upload = () => {
             Note: Gemini API key not detected. Some features may be limited.
           </p>
         )}
+        <p className="text-green-600 mt-2">
+          Using SQLite database for storing uploads and history.
+        </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -65,17 +76,33 @@ const Upload = () => {
         </TabsList>
         
         <TabsContent value="scan">
-          <ImageScan onScanComplete={() => setActiveTab('video')} />
+          <ImageScan 
+            uploadedImage={uploadedImage}
+            setUploadedImage={setUploadedImage}
+            scanResult={scanResult}
+            setScanResult={setScanResult}
+            isProcessing={isProcessing}
+            setIsProcessing={setIsProcessing}
+            onScanComplete={() => setActiveTab('video')} 
+          />
         </TabsContent>
         
         <TabsContent value="describe">
-          <TextItemIdentifier onItemIdentified={() => {
-            // You can handle what happens after item identification
-          }} />
+          <TextItemIdentifier 
+            onItemIdentified={() => {
+              // You can handle what happens after item identification
+            }} 
+          />
         </TabsContent>
 
         <TabsContent value="video">
-          <VideoUpload onUploadComplete={() => setActiveTab('scan')} />
+          <VideoUpload 
+            uploadedVideo={uploadedVideo}
+            setUploadedVideo={setUploadedVideo}
+            isProcessing={isProcessing}
+            setIsProcessing={setIsProcessing}
+            onUploadComplete={() => setActiveTab('scan')} 
+          />
         </TabsContent>
       </Tabs>
         </AppLayout>

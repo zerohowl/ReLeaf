@@ -10,10 +10,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { analyzeItemText } from '@/integrations/gemini/text-analyzer';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { SurveyData } from '@/services/surveyService';
 
 interface OnboardingSurveyProps {
-  onComplete: (data: Record<string, any>) => void;
-  initialData?: Record<string, any>;
+  onComplete: (data: SurveyData) => void;
+  initialData?: SurveyData | null;
 }
 
 const OnboardingSurvey = ({ onComplete, initialData }: OnboardingSurveyProps) => {
@@ -75,7 +76,7 @@ const OnboardingSurvey = ({ onComplete, initialData }: OnboardingSurveyProps) =>
   };
 
   const handleSubmit = () => {
-    const surveyData = {
+    const surveyData: SurveyData = {
       // Basic recycling data
       recyclingExperience,
       recyclingGoals,

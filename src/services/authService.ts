@@ -1,6 +1,8 @@
 // Authentication service to replace Supabase
 // Handles login, registration, token storage and auth state management
 
+import { isTokenExpired } from './tokenUtils';
+
 // Token storage keys
 const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
@@ -138,9 +140,19 @@ export const logout = (): void => {
 /**
  * Check if user is logged in
  */
-export const isAuthenticated = (): boolean => {
-  return !!localStorage.getItem(TOKEN_KEY);
-};
+export function isAuthenticated(): boolean {
+  const token = getToken();
+  if (!token) return false;
+  
+  // Also check if token is expired
+  if (isTokenExpired(token)) {
+    // If expired, clean up the storage
+    localStorage.removeItem(TOKEN_KEY);
+    return false;
+  }
+  
+  return true;
+}
 
 /**
  * Get the current user from localStorage

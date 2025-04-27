@@ -8,9 +8,62 @@ datasource db {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique
-  passwordHash String
-  createdAt    DateTime @default(now())
+  id             Int         @id @default(autoincrement())
+  email          String      @unique
+  passwordHash   String
+  createdAt      DateTime    @default(now())
+  public_profile Boolean     @default(true) // Controls visibility on leaderboard
+  uploads        Upload[]    @relation("UserUploads")
+  survey         UserSurvey?
   // Extend with more fields as needed (name, avatarUrl, etc.)
+}
+
+model UserSurvey {
+  id                  Int      @id @default(autoincrement())
+  userId              Int      @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recyclingExperience String   // "beginner", "intermediate", or "expert"
+  recyclingGoals      String   // JSON string of goals
+  homeType            String?
+  homeTemperature     String?
+  stoveType           String?
+  hasVehicle          Boolean?
+  vehicleType         String?
+  vehicleMake         String?
+  vehicleModel        String?
+  packageFrequency    String?
+  updatedAt           DateTime @default(now()) @updatedAt
+
+  @@index([userId])
+}
+
+model Upload {
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  user        User         @relation("UserUploads", fields: [userId], references: [id], onDelete: Cascade)
+  fileType    String      // "IMAGE" or "VIDEO"
+  fileName    String
+  filePath    String
+  fileSize    Int
+  mimeType    String
+  description String?
+  uploadedAt  DateTime     @default(now())
+  // --- Gemini Analysis Results ---
+  identifiedItem String?      // Item identified by Gemini
+  recyclingInfo String?      // Recycling instructions from Gemini
+  // --- End Gemini Analysis Results ---
+  history     UploadHistory[] @relation("UploadHistory")
+
+  @@index([userId])
+}
+
+model UploadHistory {
+  id        Int      @id @default(autoincrement())
+  uploadId  Int
+  upload    Upload   @relation("UploadHistory", fields: [uploadId], references: [id], onDelete: Cascade)
+  action    String   // e.g., "created", "viewed", "analyzed", "recycled"
+  metadata  String?  // JSON string with additional info
+  timestamp DateTime @default(now())
+
+  @@index([uploadId])
 }

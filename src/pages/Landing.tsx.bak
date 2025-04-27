@@ -79,46 +79,84 @@ const Landing = () => {
     };
   }, []);
 
-  // Simplified smooth-scroll behavior (slower, no fancy effects)
+  // Add fancy scroll behavior with advanced animations
   useEffect(() => {
-    const handleNavClick = (e: Event) => {
-      e.preventDefault();
-
-      const anchor = e.currentTarget as HTMLAnchorElement;
-      const id = anchor.getAttribute('href')?.substring(1);
-      if (!id) return;
-
-      const element = document.getElementById(id);
-      if (!element) return;
-
-      const yOffset = -80; // Offset for fixed header
-      const targetPosition = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      const startPosition = window.pageYOffset;
-      const distance = targetPosition - startPosition;
-      const duration = 800; // slower smooth scroll
-
-      let start: number | null = null;
-      const easeInOutQuad = (t: number) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
-
-      const step = (timestamp: number) => {
-        if (start === null) start = timestamp;
-        const elapsed = timestamp - start;
-        const progress = Math.min(elapsed / duration, 1);
-        const ease = easeInOutQuad(progress);
-        window.scrollTo(0, startPosition + distance * ease);
-        if (progress < 1) window.requestAnimationFrame(step);
-      };
-
-      window.requestAnimationFrame(step);
+    // Set up enhanced scrolling behavior
+    const handleNavClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'A' && target.getAttribute('href')?.startsWith('#')) {
+        e.preventDefault();
+        const id = target.getAttribute('href')?.substring(1);
+        const element = document.getElementById(id as string);
+        
+        if (element) {
+          // Add a dramatic zoom effect to the clicked navigation item
+          target.classList.add('nav-click-effect');
+          
+          // Add a ripple effect from the clicked element
+          const ripple = document.createElement('div');
+          ripple.className = 'nav-ripple';
+          document.body.appendChild(ripple);
+          
+          const rect = target.getBoundingClientRect();
+          ripple.style.left = rect.left + rect.width / 2 + 'px';
+          ripple.style.top = rect.top + rect.height / 2 + 'px';
+          
+          // Add special animation to the target section
+          element.classList.add('section-reveal-effect');
+          
+          // Scroll with a custom animation - slower and with easing
+          const startPosition = window.pageYOffset;
+          const yOffset = -80; // Offset for fixed headers
+          const targetPosition = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          const distance = targetPosition - startPosition;
+          const duration = 1200; // ms
+          let start: number | null = null;
+          
+          // Custom easing function for a bouncy effect
+          const easeOutElastic = (t: number): number => {
+            const p = 0.3;
+            return Math.pow(2, -10 * t) * Math.sin((t - p / 4) * (2 * Math.PI) / p) + 1;
+          };
+          
+          function step(timestamp: number) {
+            if (!start) start = timestamp;
+            const elapsed = timestamp - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const easeProgress = easeOutElastic(progress);
+            
+            window.scrollTo(0, startPosition + distance * easeProgress);
+            
+            if (progress < 1) {
+              window.requestAnimationFrame(step);
+            }
+          }
+          
+          window.requestAnimationFrame(step);
+          
+          // Clean up effects
+          setTimeout(() => {
+            element.classList.remove('section-reveal-effect');
+            target.classList.remove('nav-click-effect');
+            document.body.removeChild(ripple);
+          }, 1500);
+        }
+      }
     };
-
-    // Attach to all in-page anchors, including the “See How It Works” button wrapper
-    const anchors = document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]');
-    anchors.forEach(a => a.addEventListener('click', handleNavClick));
-
-    return () => anchors.forEach(a => a.removeEventListener('click', handleNavClick));
+    
+    // Add event listeners to all navigation links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', handleNavClick as EventListener);
+    });
+    
+    // Clean up event listeners
+    return () => {
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.removeEventListener('click', handleNavClick as EventListener);
+      });
+    };
   }, []);
-
+  
   return (
   <BackgroundImage>
     {/* Chat Assistant - only on landing page */}
@@ -142,47 +180,47 @@ const Landing = () => {
             <img src="/newLogo.png" alt="Releaf logo" className="h-10 w-10" />
             <span className="font-extrabold text-2xl text-eco-green tracking-wide">RELEAF</span>
           </Link>
-          <ul className="hidden md:flex justify-center items-center space-x-6 text-base font-medium text-eco-green">
-            <li className="flex items-center justify-center">
+          <ul className="hidden md:flex gap-8 text-base font-medium text-eco-green">
+            <li>
               <a 
                 href="#features" 
-                className="relative text-center px-2 py-2 overflow-hidden group hover:text-eco-green transition-all duration-300"
+                className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300"
               >
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
                 Features
               </a>
             </li>
-            <li className="flex items-center justify-center">
+            <li>
               <a 
                 href="#how-it-works" 
-                className="relative text-center px-2 py-2 overflow-hidden group hover:text-eco-green transition-all duration-300"
+                className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300"
               >
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
                 How It Works
               </a>
             </li>
-            <li className="flex items-center justify-center">
+            <li>
               <a 
                 href="#impact" 
-                className="relative text-center px-2 py-2 overflow-hidden group hover:text-eco-green transition-all duration-300"
+                className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300"
               >
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
                 Impact
               </a>
             </li>
-            <li className="flex items-center justify-center">
+            <li>
               <a 
                 href="#team" 
-                className="relative text-center px-2 py-2 overflow-hidden group hover:text-eco-green transition-all duration-300"
+                className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300"
               >
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
                 About the Team
               </a>
             </li>
-            <li className="flex items-center justify-center">
+            <li>
               <a 
                 href="#faq" 
-                className="relative text-center px-2 py-2 overflow-hidden group hover:text-eco-green transition-all duration-300"
+                className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300"
               >
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
                 FAQ
@@ -190,7 +228,7 @@ const Landing = () => {
             </li>
           </ul>
           <Link to="/login">
-            <Button className="px-8 py-6 text-base rounded-xl transition-all hover:scale-105">Get Started</Button>
+            <Button className="px-8 py-6 text-base rounded-xl transition-all duration-300 hover:shadow-lg hover:brightness-105">Get Started</Button>
           </Link>
         </motion.nav>
 
@@ -428,7 +466,7 @@ const Landing = () => {
           </div>
           
           <div className="text-sm text-muted-foreground mt-4">
-            &copy; {new Date().getFullYear()} Releaf. All rights reserved.
+            © {new Date().getFullYear()} Releaf. All rights reserved.
           </div>
         </motion.footer>
       </motion.div>

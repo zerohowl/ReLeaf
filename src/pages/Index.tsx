@@ -88,7 +88,7 @@ const Dashboard = () => {
 
   return (
     <PageTransition>
-      <BackgroundImage blurred={true}>
+      <BackgroundImage>
         <AppLayout>
           <div className="mb-8 space-y-4">
             <h1 className="text-4xl font-bold mb-2 text-gradient">Welcome back!</h1>

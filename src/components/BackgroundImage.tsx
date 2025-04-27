@@ -17,20 +17,20 @@ const BackgroundImage = ({ children, blurred = false }: BackgroundImageProps) =>
       scale: 1.0
     },
     blurred: { 
-      filter: 'blur(8px)',
-      scale: 1.02 // Subtle scale effect for more dimension when blurred
+      filter: 'blur(6px)',
+      scale: 1.015 // Slight scale
     }
   };
 
   // Gradient overlay variants
   const gradientVariants = {
     unblurred: { 
-      opacity: 0.3,
-      backgroundImage: 'linear-gradient(135deg, rgba(96, 196, 85, 0.3) 0%, rgba(79, 180, 199, 0.3) 100%)'
+      opacity: 0.15,
+      backgroundImage: 'linear-gradient(135deg, rgba(96, 196, 85, 0.15) 0%, rgba(79, 180, 199, 0.15) 100%)'
     },
     blurred: { 
-      opacity: 0.5,
-      backgroundImage: 'linear-gradient(135deg, rgba(96, 196, 85, 0.4) 0%, rgba(79, 180, 199, 0.5) 100%)'
+      opacity: 0.3,
+      backgroundImage: 'linear-gradient(135deg, rgba(96, 196, 85, 0.25) 0%, rgba(79, 180, 199, 0.25) 100%)'
     }
   };
 
@@ -38,8 +38,8 @@ const BackgroundImage = ({ children, blurred = false }: BackgroundImageProps) =>
     <div className="relative min-h-screen w-full overflow-hidden">
       {/* Background pattern layer with blur effect */}
       <motion.div 
-        className="fixed inset-0 bg-[url('/bg-leaves.svg')] bg-cover bg-center"
-        initial={blurred ? 'blurred' : 'unblurred'}
+        className="fixed inset-0 bg-[url('/Background.png')] bg-cover bg-center"
+        initial="unblurred"
         animate={blurred ? 'blurred' : 'unblurred'}
         variants={backgroundVariants}
         transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1.0] }}
@@ -47,8 +47,8 @@ const BackgroundImage = ({ children, blurred = false }: BackgroundImageProps) =>
       
       {/* Enhanced gradient overlay with animation */}
       <motion.div 
-        className="fixed inset-0 mix-blend-multiply"
-        initial={blurred ? 'blurred' : 'unblurred'}
+        className="fixed inset-0 mix-blend-multiply bg-black/10"
+        initial="unblurred"
         animate={blurred ? 'blurred' : 'unblurred'}
         variants={gradientVariants}
         transition={{ duration: 1.1, ease: [0.25, 0.1, 0.25, 1.0] }}

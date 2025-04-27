@@ -55,7 +55,7 @@ const Upload = () => {
 
   return (
     <PageTransition>
-      <BackgroundImage blurred={true}>
+      <BackgroundImage>
         <AppLayout>
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">Upload & Scan</h1>

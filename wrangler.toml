@@ -1,6 +1,6 @@
-# wrangler.toml
-name = "releaf-recycling-app"
-compatibility_date = "2025-04-27"
+# Simple Cloudflare Pages configuration
 
-[site]
-bucket = "./dist"
+[build]
+command = "npm run build"
+publish = "dist"
+

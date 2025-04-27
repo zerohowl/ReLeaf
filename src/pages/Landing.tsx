@@ -26,17 +26,50 @@ const Landing = () => {
   
   // Add styles for section highlighting
   useEffect(() => {
-    // Add CSS for highlighted sections
+    // Add CSS for advanced animation effects
     const style = document.createElement('style');
     style.textContent = `
-      .highlight-section {
-        animation: highlight-pulse 1.5s ease-in-out;
+      /* Navigation click effect */
+      .nav-click-effect {
+        animation: nav-pop 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+        transform-origin: center;
       }
       
-      @keyframes highlight-pulse {
-        0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
-        50% { box-shadow: 0 0 20px 10px rgba(74, 222, 128, 0.3); }
-        100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+      @keyframes nav-pop {
+        0% { transform: scale(1); color: var(--eco-green); }
+        40% { transform: scale(1.4); color: var(--eco-green); }
+        60% { transform: scale(0.9); }
+        80% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+      }
+      
+      /* Ripple effect */
+      .nav-ripple {
+        position: fixed;
+        transform: translate(-50%, -50%);
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background-color: rgba(74, 222, 128, 0.3);
+        pointer-events: none;
+        z-index: 1000;
+        animation: ripple-effect 1s cubic-bezier(0, 0.5, 0.5, 1) forwards;
+      }
+      
+      @keyframes ripple-effect {
+        0% { width: 5px; height: 5px; opacity: 1; }
+        100% { width: 500vw; height: 500vw; opacity: 0; }
+      }
+      
+      /* Section reveal effect */
+      .section-reveal-effect {
+        animation: section-reveal 1.2s ease-out;
+      }
+      
+      @keyframes section-reveal {
+        0% { opacity: 0.5; transform: scale(0.97); }
+        70% { opacity: 1; transform: scale(1.02); }
+        100% { opacity: 1; transform: scale(1); }
       }
     `;
     document.head.appendChild(style);
@@ -46,7 +79,7 @@ const Landing = () => {
     };
   }, []);
 
-  // Add smooth scroll behavior with animation
+  // Add fancy scroll behavior with advanced animations
   useEffect(() => {
     // Set up enhanced scrolling behavior
     const handleNavClick = (e: MouseEvent) => {
@@ -57,21 +90,55 @@ const Landing = () => {
         const element = document.getElementById(id as string);
         
         if (element) {
-          // Highlight the section visually
-          element.classList.add('highlight-section');
+          // Add a dramatic zoom effect to the clicked navigation item
+          target.classList.add('nav-click-effect');
           
-          // Scroll with a custom animation
+          // Add a ripple effect from the clicked element
+          const ripple = document.createElement('div');
+          ripple.className = 'nav-ripple';
+          document.body.appendChild(ripple);
+          
+          const rect = target.getBoundingClientRect();
+          ripple.style.left = rect.left + rect.width / 2 + 'px';
+          ripple.style.top = rect.top + rect.height / 2 + 'px';
+          
+          // Add special animation to the target section
+          element.classList.add('section-reveal-effect');
+          
+          // Scroll with a custom animation - slower and with easing
+          const startPosition = window.pageYOffset;
           const yOffset = -80; // Offset for fixed headers
-          const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          const targetPosition = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          const distance = targetPosition - startPosition;
+          const duration = 1200; // ms
+          let start: number | null = null;
           
-          window.scrollTo({
-            top: y,
-            behavior: 'smooth'
-          });
+          // Custom easing function for a bouncy effect
+          const easeOutElastic = (t: number): number => {
+            const p = 0.3;
+            return Math.pow(2, -10 * t) * Math.sin((t - p / 4) * (2 * Math.PI) / p) + 1;
+          };
           
-          // Remove highlight after animation completes
+          function step(timestamp: number) {
+            if (!start) start = timestamp;
+            const elapsed = timestamp - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const easeProgress = easeOutElastic(progress);
+            
+            window.scrollTo(0, startPosition + distance * easeProgress);
+            
+            if (progress < 1) {
+              window.requestAnimationFrame(step);
+            }
+          }
+          
+          window.requestAnimationFrame(step);
+          
+          // Clean up effects
           setTimeout(() => {
-            element.classList.remove('highlight-section');
+            element.classList.remove('section-reveal-effect');
+            target.classList.remove('nav-click-effect');
+            document.body.removeChild(ripple);
           }, 1500);
         }
       }
@@ -114,49 +181,54 @@ const Landing = () => {
             <span className="font-extrabold text-2xl text-eco-green tracking-wide">RELEAF</span>
           </Link>
           <ul className="hidden md:flex gap-8 text-base font-medium text-eco-green">
-            <li>
+            <li className="flex items-center justify-center">
               <a 
                 href="#features" 
-                className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300"
+                className="relative block text-center py-2 px-2 overflow-hidden group hover:text-eco-green transition-all duration-300"
               >
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
-                Features
+                <span className="absolute inset-0 bg-eco-green/0 group-hover:bg-eco-green/10 rounded-md -z-10 transition-all duration-300 ease-in-out"></span>
+                <span className="relative z-10 transition-transform group-hover:translate-y-[-2px] inline-block duration-300">Features</span>
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-eco-green scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
               </a>
             </li>
-            <li>
+            <li className="flex items-center justify-center">
               <a 
                 href="#how-it-works" 
-                className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300"
+                className="relative block text-center py-2 px-2 overflow-hidden group hover:text-eco-green transition-all duration-300"
               >
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
-                How It Works
+                <span className="absolute inset-0 bg-eco-green/0 group-hover:bg-eco-green/10 rounded-md -z-10 transition-all duration-300 ease-in-out"></span>
+                <span className="relative z-10 transition-transform group-hover:translate-y-[-2px] inline-block duration-300">How It Works</span>
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-eco-green scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
               </a>
             </li>
-            <li>
+            <li className="flex items-center justify-center">
               <a 
                 href="#impact" 
-                className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300"
+                className="relative block text-center py-2 px-2 overflow-hidden group hover:text-eco-green transition-all duration-300"
               >
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
-                Impact
+                <span className="absolute inset-0 bg-eco-green/0 group-hover:bg-eco-green/10 rounded-md -z-10 transition-all duration-300 ease-in-out"></span>
+                <span className="relative z-10 transition-transform group-hover:translate-y-[-2px] inline-block duration-300">Impact</span>
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-eco-green scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
               </a>
             </li>
-            <li>
+            <li className="flex items-center justify-center">
               <a 
                 href="#team" 
-                className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300"
+                className="relative block text-center py-2 px-2 overflow-hidden group hover:text-eco-green transition-all duration-300"
               >
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
-                About the Team
+                <span className="absolute inset-0 bg-eco-green/0 group-hover:bg-eco-green/10 rounded-md -z-10 transition-all duration-300 ease-in-out"></span>
+                <span className="relative z-10 transition-transform group-hover:translate-y-[-2px] inline-block duration-300">About the Team</span>
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-eco-green scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
               </a>
             </li>
-            <li>
+            <li className="flex items-center justify-center">
               <a 
                 href="#faq" 
-                className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300"
+                className="relative block text-center py-2 px-2 overflow-hidden group hover:text-eco-green transition-all duration-300"
               >
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
-                FAQ
+                <span className="absolute inset-0 bg-eco-green/0 group-hover:bg-eco-green/10 rounded-md -z-10 transition-all duration-300 ease-in-out"></span>
+                <span className="relative z-10 transition-transform group-hover:translate-y-[-2px] inline-block duration-300">FAQ</span>
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-eco-green scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
               </a>
             </li>
           </ul>
@@ -375,27 +447,34 @@ const Landing = () => {
           transition={{ duration: 0.5 }}
           className="border-t pt-8 mt-8 text-center text-base text-eco-green"
         >
-          <div className="flex flex-wrap justify-center gap-8 mb-4">
-            <a href="#features" className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300">
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
-              Features
-            </a>
-            <a href="#how-it-works" className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300">
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
-              How It Works
-            </a>
-            <a href="#impact" className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300">
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
-              Impact
-            </a>
-            <a href="#team" className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300">
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
-              About the Team
-            </a>
-            <a href="#faq" className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300">
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
-              FAQ
-            </a>
+          <div className="flex flex-wrap justify-center items-center mb-4">
+            <div className="flex gap-8">
+              <a href="#features" className="relative text-center px-3 py-2 overflow-hidden group hover:text-eco-green transition-all duration-300">
+                <span className="absolute inset-0 bg-eco-green/0 group-hover:bg-eco-green/10 rounded-md -z-10 transition-all duration-300 ease-in-out"></span>
+                <span className="relative z-10 transition-transform group-hover:translate-y-[-2px] inline-block duration-300">Features</span>
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-eco-green scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+              </a>
+              <a href="#how-it-works" className="relative text-center px-3 py-2 overflow-hidden group hover:text-eco-green transition-all duration-300">
+                <span className="absolute inset-0 bg-eco-green/0 group-hover:bg-eco-green/10 rounded-md -z-10 transition-all duration-300 ease-in-out"></span>
+                <span className="relative z-10 transition-transform group-hover:translate-y-[-2px] inline-block duration-300">How It Works</span>
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-eco-green scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+              </a>
+              <a href="#impact" className="relative text-center px-3 py-2 overflow-hidden group hover:text-eco-green transition-all duration-300">
+                <span className="absolute inset-0 bg-eco-green/0 group-hover:bg-eco-green/10 rounded-md -z-10 transition-all duration-300 ease-in-out"></span>
+                <span className="relative z-10 transition-transform group-hover:translate-y-[-2px] inline-block duration-300">Impact</span>
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-eco-green scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+              </a>
+              <a href="#team" className="relative text-center px-3 py-2 overflow-hidden group hover:text-eco-green transition-all duration-300">
+                <span className="absolute inset-0 bg-eco-green/0 group-hover:bg-eco-green/10 rounded-md -z-10 transition-all duration-300 ease-in-out"></span>
+                <span className="relative z-10 transition-transform group-hover:translate-y-[-2px] inline-block duration-300">About the Team</span>
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-eco-green scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+              </a>
+              <a href="#faq" className="relative text-center px-3 py-2 overflow-hidden group hover:text-eco-green transition-all duration-300">
+                <span className="absolute inset-0 bg-eco-green/0 group-hover:bg-eco-green/10 rounded-md -z-10 transition-all duration-300 ease-in-out"></span>
+                <span className="relative z-10 transition-transform group-hover:translate-y-[-2px] inline-block duration-300">FAQ</span>
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-eco-green scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+              </a>
+            </div>
           </div>
           
           <div className="text-sm text-muted-foreground mt-4">

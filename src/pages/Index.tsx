@@ -33,10 +33,10 @@ const Dashboard = () => {
   };
 
   const leaderboardUsers = [
-    { name: 'Alex Kim', score: 1245, rank: 1 },
-    { name: 'Taylor Swift', score: 1120, rank: 2 },
-    { name: 'John Doe', score: 950, rank: 3, isCurrentUser: true },
-    { name: 'Sarah Johnson', score: 900, rank: 4 },
+    { name: 'Kevin H.', score: 1245, rank: 1 },
+    { name: 'Turat Z.', score: 1120, rank: 2 },
+    { name: 'Sean E.', score: 875, rank: 3, isCurrentUser: true },
+    { name: 'Enzo P.', score: 800, rank: 4 },
     { name: 'Mike Peterson', score: 780, rank: 5 },
   ];
 

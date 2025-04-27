@@ -52,12 +52,12 @@ const Login = () => {
 
         {/* Login Card */}
         <AuthCard
-          title="Welcome to Re-Leaf!"
+          title="Welcome to Releaf!"
           footer={ // Footer specific to the login card
             <div className="text-center mt-4">
               <span className="text-sm text-muted-foreground">
                 Don't have an account?{' '}
-                <Link to="/signup" className="text-primary hover:underline font-medium">
+                <Link to="/signup?fromLogin=true" className="text-primary hover:underline font-medium">
                   Sign up
                 </Link>
               </span>
@@ -71,7 +71,7 @@ const Login = () => {
         <div className="mt-8 w-full max-w-md"> 
           <AuthCard title="Project Description"> 
             <p className="text-sm text-card-foreground/80 leading-relaxed mb-3"> 
-              Re-Leaf is a web platform that integrates AI to promote recycling practices. Users will be able to upload images of objects to the website, where the AI model (Gemini) will analyze the photo, identify the object, determine whether it is recyclable, and suggest nearby locations where it can be properly recycled. The platform will also maintain a history of previously identified objects for each user, allowing them to track their recycling habits over time.
+              Releaf is a web platform that integrates AI to promote recycling practices. Users will be able to upload images of objects to the website, where the AI model (Gemini) will analyze the photo, identify the object, determine whether it is recyclable, and suggest nearby locations where it can be properly recycled. The platform will also maintain a history of previously identified objects for each user, allowing them to track their recycling habits over time.
             </p>
             <p className="text-sm text-card-foreground/80 leading-relaxed"> 
               Additionally, users will have the option to upload videos of themselves recycling. Gemini will review these videos, assign a recycling score based on their efforts, and encourage users to maintain streaks by rewarding consistent recycling behavior.

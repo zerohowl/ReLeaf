@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import AuthCard from '@/components/auth/AuthCard';
@@ -10,18 +10,24 @@ import BackgroundImage from '@/components/BackgroundImage';
 const Signup = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  // Check if user is coming from login page (has fromLogin param)
+  const fromLogin = new URLSearchParams(location.search).get('fromLogin') === 'true';
 
   useEffect(() => {
-    // Check if user is authenticated
-    const user = localStorage.getItem('user');
-    setIsAuthenticated(!!user);
-  }, []);
+    // Check if user is authenticated, but skip this check if coming from login
+    if (!fromLogin) {
+      const user = localStorage.getItem('user');
+      setIsAuthenticated(!!user);
+    }
+  }, [fromLogin]);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && !fromLogin) {
+      // Only redirect to dashboard if authenticated and not coming from login
       setTimeout(() => navigate('/dashboard', { replace: true }), 250);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, fromLogin, navigate]);
 
   if (isAuthenticated) return null;
 

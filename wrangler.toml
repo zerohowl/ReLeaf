@@ -1,5 +1,5 @@
 # Cloudflare Pages static site configuration
-name = "releaf"
+name = "releafdemo"
 compatibility_date = "2025-04-27"
 
 [assets]

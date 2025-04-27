@@ -37,7 +37,7 @@ export function AppSidebar() {
     {
       title: "Dashboard",
       icon: Home,
-      path: "/"
+      path: "/dashboard"
     },
     {
       title: "Upload Item",
@@ -95,16 +95,14 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <div className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-2">
-          
-        <img
+        <Link to="/" className="flex items-center gap-2 transition-colors hover:text-eco-green">
+          <img
             src="/newLogo.png"        
             alt="Releaf Logo"  
-            className="h-10 w-auto"  
+            className="h-16 w-auto"  
           />
-
-          <span className="font-bold text-sidebar-foreground">Releaf</span>
-        </div>
+          <span className="font-bold text-sidebar-foreground text-xl">Releaf</span>
+        </Link>
         <SidebarTrigger 
           className={`
             ${state === 'collapsed' ? 'bg-eco-green text-white' : ''} 
@@ -121,8 +119,8 @@ export function AppSidebar() {
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <Link to={item.path} className="flex items-center gap-2 transition duration-200">
-                      <item.icon className="h-5 w-5" />
+                    <Link to={item.path} className="flex items-center gap-3 transition duration-200 text-base font-medium">
+                      <item.icon className="h-6 w-6" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -136,10 +134,10 @@ export function AppSidebar() {
       <SidebarFooter>
         <div className="p-4">
           <button 
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors text-base font-medium"
             onClick={handleLogout}
           >
-            <LogOut className="h-5 w-5" />
+            <LogOut className="h-6 w-6" />
             <span>Logout</span>
           </button>
         </div>

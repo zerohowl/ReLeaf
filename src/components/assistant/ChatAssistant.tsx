@@ -1,23 +1,24 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
 import { 
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerClose
-} from '@/components/ui/drawer';
-import { Input } from '@/components/ui/input';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose
+} from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { queryAgents } from '@/integrations/fetch-ai/agents';
+import { sendChatMessage, AgentResponse } from '@/services/chatService';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  timestamp?: number;
 }
+
+const STORAGE_KEY = 'releaf_chat_history';
 
 const ChatAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,29 +26,68 @@ const ChatAssistant = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  
+  // Load chat history from localStorage when component mounts
+  useEffect(() => {
+    try {
+      const savedMessages = localStorage.getItem(STORAGE_KEY);
+      if (savedMessages) {
+        setMessages(JSON.parse(savedMessages));
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+      // Don't show error to user, just continue with empty chat
+    }
+  }, []);
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    try {
+      if (messages.length > 0) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+      }
+    } catch (error) {
+      console.error('Error saving chat history:', error);
+    }
+  }, [messages]);
 
   const handleSendMessage = async () => {
     if (!input.trim()) return;
     
     // Add user message to chat
-    const userMessage = { role: 'user' as const, content: input };
+    const userMessage = { 
+      role: 'user' as const, 
+      content: input,
+      timestamp: Date.now() 
+    };
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
     
     try {
-      // Query fetch.ai agents
-      const response = await queryAgents(input);
+      // Use our secure backend service instead of direct Fetch.ai integration
+      const response: AgentResponse = await sendChatMessage(input);
+      
       const assistantMessage = { 
         role: 'assistant' as const, 
-        content: response.text
+        content: response.text,
+        timestamp: Date.now()
       };
       setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching response:', error);
+      
+      // Add error message to chat instead of just showing toast
+      const errorMessage = { 
+        role: 'assistant' as const, 
+        content: 'Sorry, I encountered an error. Please try again later.',
+        timestamp: Date.now()
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+      
       toast({
-        title: "Error",
-        description: "Unable to get a response. Please try again.",
+        title: "Connection Error",
+        description: error.message || "Unable to get a response. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -64,12 +104,12 @@ const ChatAssistant = () => {
         <MessageCircle className="h-6 w-6" />
       </Button>
 
-      <Drawer open={isOpen} onOpenChange={setIsOpen}>
-        <DrawerContent className="h-[80vh]">
-          <DrawerHeader className="border-b">
-            <DrawerTitle>Releaf Assistant</DrawerTitle>
-            <DrawerClose />
-          </DrawerHeader>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="h-[80vh]">
+          <DialogHeader className="border-b">
+            <DialogTitle>Releaf Assistant</DialogTitle>
+            <DialogClose />
+          </DialogHeader>
           <div className="flex flex-col h-full p-4">
             <div className="flex-1 overflow-y-auto mb-4 space-y-4">
               {messages.length === 0 ? (
@@ -120,8 +160,8 @@ const ChatAssistant = () => {
               </Button>
             </div>
           </div>
-        </DrawerContent>
-      </Drawer>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

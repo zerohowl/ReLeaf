@@ -1,84 +1,96 @@
-
+import { useState, useEffect } from "react";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LeaderboardCard from "@/components/dashboard/LeaderboardCard";
+import PageTransition from "@/components/PageTransition";
+import BackgroundImage from "@/components/BackgroundImage";
+import { getLeaderboard, LeaderboardUser } from "@/services/leaderboardService";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Leaderboard = () => {
-  // Sample leaderboard data
-  const weeklyUsers = [
-    { name: "Alex Thompson", score: 450, rank: 1 },
-    { name: "Jamie Rodriguez", score: 410, rank: 2 },
-    { name: "Taylor Kim", score: 380, rank: 3 },
-    { name: "Jordan Smith", score: 350, rank: 4, isCurrentUser: true },
-    { name: "Casey Johnson", score: 320, rank: 5 },
-  ];
+  const [activeTab, setActiveTab] = useState<'weekly' | 'monthly' | 'all-time'>('weekly');
+  const [leaderboardData, setLeaderboardData] = useState<LeaderboardUser[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const monthlyUsers = [
-    { name: "Morgan Williams", score: 1250, rank: 1 },
-    { name: "Alex Thompson", score: 1150, rank: 2 },
-    { name: "Jordan Smith", score: 980, rank: 3, isCurrentUser: true },
-    { name: "Taylor Kim", score: 920, rank: 4 },
-    { name: "Casey Johnson", score: 870, rank: 5 },
-  ];
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      setIsLoading(true);
+      try {
+        const data = await getLeaderboard(activeTab);
+        setLeaderboardData(data);
+      } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const allTimeUsers = [
-    { name: "Morgan Williams", score: 5680, rank: 1 },
-    { name: "Riley Chen", score: 4950, rank: 2 },
-    { name: "Alex Thompson", score: 4320, rank: 3 },
-    { name: "Jordan Smith", score: 3760, rank: 4, isCurrentUser: true },
-    { name: "Jamie Rodriguez", score: 3540, rank: 5 },
-  ];
+    fetchLeaderboard();
+  }, [activeTab]);
 
   return (
-    <AppLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Leaderboard</h1>
-          <p className="text-muted-foreground">
-            See who's leading the way in recycling efforts.
-          </p>
-        </div>
+    <PageTransition>
+      <BackgroundImage>
+        <AppLayout>
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Leaderboard</h1>
+              <p className="text-muted-foreground">
+                See who's leading the way in recycling efforts.
+              </p>
+            </div>
 
-        <Tabs defaultValue="weekly" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 max-w-md">
-            <TabsTrigger value="weekly">Weekly</TabsTrigger>
-            <TabsTrigger value="monthly">Monthly</TabsTrigger>
-            <TabsTrigger value="all-time">All Time</TabsTrigger>
-          </TabsList>
-          <TabsContent value="weekly">
-            <Card>
-              <CardHeader>
-                <CardTitle>Weekly Leaders</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <LeaderboardCard users={weeklyUsers} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="monthly">
-            <Card>
-              <CardHeader>
-                <CardTitle>Monthly Leaders</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <LeaderboardCard users={monthlyUsers} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="all-time">
-            <Card>
-              <CardHeader>
-                <CardTitle>All-Time Leaders</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <LeaderboardCard users={allTimeUsers} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </AppLayout>
+            <Tabs defaultValue="weekly" className="w-full" onValueChange={(value) => setActiveTab(value as 'weekly' | 'monthly' | 'all-time')}>
+              <TabsList className="grid w-full grid-cols-3 max-w-md">
+                <TabsTrigger value="weekly">Weekly</TabsTrigger>
+                <TabsTrigger value="monthly">Monthly</TabsTrigger>
+                <TabsTrigger value="all-time">All Time</TabsTrigger>
+              </TabsList>
+              <TabsContent value="weekly" className="space-y-4">
+                {isLoading ? (
+                  <Card className="p-4">
+                    <Skeleton className="h-60 w-full" />
+                  </Card>
+                ) : leaderboardData.length > 0 ? (
+                  <LeaderboardCard users={leaderboardData} />
+                ) : (
+                  <Card className="p-6 text-center">
+                    <p className="text-muted-foreground">No leaderboard data available.</p>
+                  </Card>
+                )}
+              </TabsContent>
+              <TabsContent value="monthly" className="space-y-4">
+                {isLoading ? (
+                  <Card className="p-4">
+                    <Skeleton className="h-60 w-full" />
+                  </Card>
+                ) : leaderboardData.length > 0 ? (
+                  <LeaderboardCard users={leaderboardData} />
+                ) : (
+                  <Card className="p-6 text-center">
+                    <p className="text-muted-foreground">No leaderboard data available.</p>
+                  </Card>
+                )}
+              </TabsContent>
+              <TabsContent value="all-time" className="space-y-4">
+                {isLoading ? (
+                  <Card className="p-4">
+                    <Skeleton className="h-60 w-full" />
+                  </Card>
+                ) : leaderboardData.length > 0 ? (
+                  <LeaderboardCard users={leaderboardData} />
+                ) : (
+                  <Card className="p-6 text-center">
+                    <p className="text-muted-foreground">No leaderboard data available.</p>
+                  </Card>
+                )}
+              </TabsContent>
+            </Tabs>
+          </div>
+        </AppLayout>
+      </BackgroundImage>
+    </PageTransition>
   );
 };
 

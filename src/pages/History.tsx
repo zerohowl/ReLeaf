@@ -1,80 +1,64 @@
 import { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
 import HistoryTimeline from '@/components/history/HistoryTimeline';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import PageFade from '@/components/PageFade';
-import { supabase } from '@/integrations/supabase/client';
+import PageTransition from '@/components/PageTransition';
+import BackgroundImage from '@/components/BackgroundImage';
+import { isAuthenticated as isAuth } from '@/services/authService';
+import { getUserUploads } from '@/services/uploadService';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 const History = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [historyItems, setHistoryItems] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const navigate = useNavigate();
   
-  // Mock history data
-  const mockHistoryItems = [
-    {
-      id: '1',
-      name: 'Plastic Bottle',
-      isRecyclable: true,
-      date: new Date(2023, 3, 15, 10, 30),
-      imageUrl: 'https://images.unsplash.com/photo-1581213779916-8de94d7f3d3e?auto=format&fit=crop&w=600&h=400&q=80',
-      points: 25,
-      videoUrl: 'video1.mp4'
-    },
-    {
-      id: '2',
-      name: 'Cardboard Box',
-      isRecyclable: true,
-      date: new Date(2023, 3, 15, 14, 45),
-      imageUrl: 'https://images.unsplash.com/photo-1595864658389-d8e0eea27c5e?auto=format&fit=crop&w=600&h=400&q=80'
-    },
-    {
-      id: '3',
-      name: 'Styrofoam Container',
-      isRecyclable: false,
-      date: new Date(2023, 3, 14, 9, 20),
-      imageUrl: 'https://images.unsplash.com/photo-1591993676692-175b71bd1ed1?auto=format&fit=crop&w=600&h=400&q=80'
-    },
-    {
-      id: '4',
-      name: 'Aluminum Can',
-      isRecyclable: true,
-      date: new Date(2023, 3, 14, 16, 10),
-      imageUrl: 'https://images.unsplash.com/photo-1576426863848-c21f53c60b19?auto=format&fit=crop&w=600&h=400&q=80',
-      points: 20,
-      videoUrl: 'video2.mp4'
-    },
-    {
-      id: '5',
-      name: 'Glass Jar',
-      isRecyclable: true,
-      date: new Date(2023, 3, 13, 11, 5),
-      imageUrl: 'https://images.unsplash.com/photo-1585664811087-47f65abbad64?auto=format&fit=crop&w=600&h=400&q=80'
-    },
-    {
-      id: '6',
-      name: 'Pizza Box (Soiled)',
-      isRecyclable: false,
-      date: new Date(2023, 3, 12, 19, 30),
-      imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&h=400&q=80'
-    }
-  ];
-
   // Filter by recyclable status
-  const allItems = mockHistoryItems;
-  const recyclableItems = mockHistoryItems.filter(item => item.isRecyclable);
-  const nonRecyclableItems = mockHistoryItems.filter(item => !item.isRecyclable);
+  const allItems = historyItems;
+  const recyclableItems = historyItems.filter(item => item.isRecyclable);
+  const nonRecyclableItems = historyItems.filter(item => !item.isRecyclable);
+
+  const fetchHistoryItems = async () => {
+    try {
+      setIsRefreshing(true);
+      const uploads = await getUserUploads();
+      setHistoryItems(uploads);
+      setError(null);
+    } catch (err: any) {
+      console.error('Error fetching history:', err);
+      setError(err.message || 'Failed to load history');
+      // Don't clear existing items on error to keep the UI stable
+    } finally {
+      setIsRefreshing(false);
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      const localUser = localStorage.getItem('user');
-      setIsAuthenticated(!!data.session || !!localUser);
+    const auth = isAuth();
+    setIsAuthenticated(auth);
+    
+    if (auth) {
+      fetchHistoryItems();
+    } else {
       setIsLoading(false);
-    };
-    checkAuth();
+    }
   }, []);
+  
+  const handleRefresh = () => {
+    fetchHistoryItems();
+    toast.success('Refreshing history...');
+  };
+
+  const handleScanClick = () => {
+    navigate('/upload');
+  };
 
   if (isLoading) {
     return (
@@ -83,19 +67,35 @@ const History = () => {
       </div>
     );
   }
+  
+  // If there's no history items yet
+  const noHistoryItems = historyItems.length === 0 && !isLoading;
 
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
 
   return (
-    <PageFade>
-      <AppLayout>
+    <PageTransition>
+      <BackgroundImage>
+        <AppLayout>
         <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">Your Recycling History</h1>
-          <p className="text-muted-foreground">
-            Track all your scanned items and recycling activities over time.
-          </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Your Recycling History</h1>
+              <p className="text-muted-foreground">
+                Track all your scanned items and recycling activities over time.
+              </p>
+            </div>
+            <Button 
+              onClick={handleRefresh} 
+              disabled={isRefreshing}
+              variant="outline"
+              size="sm"
+            >
+              {isRefreshing ? 'Refreshing...' : 'Refresh'}
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="all" className="w-full">
@@ -108,7 +108,17 @@ const History = () => {
           <TabsContent value="all">
             <Card>
               <CardContent className="pt-6">
-                <HistoryTimeline items={allItems} />
+                {noHistoryItems ? (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground mb-4">
+                      You haven't uploaded any items yet. Start recycling to build your history!
+                    </p>
+                    <Button onClick={handleScanClick}>Scan an Item</Button>
+                  </div>
+                ) : (
+                  <HistoryTimeline items={allItems} />
+                )}
+                {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
               </CardContent>
             </Card>
           </TabsContent>
@@ -116,7 +126,13 @@ const History = () => {
           <TabsContent value="recyclable">
             <Card>
               <CardContent className="pt-6">
-                <HistoryTimeline items={recyclableItems} />
+                {recyclableItems.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground">No recyclable items found in your history.</p>
+                  </div>
+                ) : (
+                  <HistoryTimeline items={recyclableItems} />
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -124,13 +140,20 @@ const History = () => {
           <TabsContent value="non-recyclable">
             <Card>
               <CardContent className="pt-6">
-                <HistoryTimeline items={nonRecyclableItems} />
+                {nonRecyclableItems.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground">No non-recyclable items found in your history.</p>
+                  </div>
+                ) : (
+                  <HistoryTimeline items={nonRecyclableItems} />
+                )}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
-      </AppLayout>
-    </PageFade>
+        </AppLayout>
+      </BackgroundImage>
+    </PageTransition>
   );
 };
 

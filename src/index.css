@@ -4,6 +4,21 @@
 @tailwind utilities;
 
 @layer base {
+  /* Special rules for the landing page regardless of theme */
+  :root.landing-page h1,
+  :root.landing-page h2,
+  :root.landing-page h3 {
+    color: var(--heading-color, hsl(222 47% 11%)) !important;
+  }
+  
+  :root.landing-page p {
+    color: var(--paragraph-color, hsl(215.4 16.3% 46.9%)) !important;
+  }
+  
+  :root.landing-page nav a {
+    color: var(--nav-color, hsl(222 47% 11%)) !important;
+  }
+  
   :root.light {
     --background: 0 0% 100%;
     --foreground: 222 47% 11%;
@@ -62,7 +77,7 @@
     --secondary-foreground: 210 40% 98%;
     
     --muted: 217 19% 27%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted-foreground: 215 20.2% 85%;
     
     --accent: 217 19% 27%;
     --accent-foreground: 210 40% 98%;
@@ -93,6 +108,19 @@
   }
   body {
     @apply text-foreground antialiased;
+  }
+  
+  /* Better dark mode text visibility */
+  .dark h1, .dark h2, .dark h3 {
+    @apply text-white;
+  }
+  
+  .dark p {
+    @apply text-gray-200;
+  }
+  
+  .dark .text-muted-foreground {
+    @apply text-gray-300;
   }
 
   body.dark {

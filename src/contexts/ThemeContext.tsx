@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 
 type Theme = "light" | "dark";
@@ -18,12 +17,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const root = window.document.documentElement;
-    
-    // Apply the theme
-    root.classList.remove("light", "dark");
-    root.classList.add(theme);
-    
-    // Save theme to localStorage
+    const isLandingPage = window.location.pathname === '/' || window.location.pathname === '/landing';
+    // Clear theme and landing-page classes
+    root.classList.remove("light", "dark", "landing-page");
+    if (isLandingPage) {
+      // Force light theme on landing page
+      root.classList.add("light", "landing-page");
+    } else {
+      // Apply selected theme on other pages
+      root.classList.add(theme);
+    }
+    // Save theme selection
     localStorage.setItem("theme", theme);
   }, [theme]);
 

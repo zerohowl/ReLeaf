@@ -5,13 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { login } from '@/services/authService';
 
-// Mock user database
-const MOCK_USERS = [
-  { email: 'user@example.com', password: 'password123', name: 'Demo User' },
-  { email: 'admin@releaf.com', password: 'admin123', name: 'Admin User' }
-];
+
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -26,53 +22,27 @@ const LoginForm = () => {
     setIsLoading(true);
     setError('');
     
-    // Find matching user in our mock database
-    const user = MOCK_USERS.find(
-      user => user.email === email && user.password === password
-    );
-    
-    setTimeout(async () => {
-      if (user) {
-        // Valid login
-        localStorage.setItem('user', JSON.stringify({ email, name: user.name }));
-        
-        // Also set up Supabase session for proper auth state management
-        try {
-          // This is just for demonstration, using a fake JWT since we're not doing real auth
-          // In a real app, this would be handled by Supabase's real authentication
-          const fakeSession = { 
-            access_token: 'fake-jwt-token',
-            refresh_token: 'fake-refresh-token',
-            expires_in: 3600,
-            user: { id: '123', email, name: user.name }
-          };
-          
-          // Set auth cookie for Supabase
-          await supabase.auth.setSession(fakeSession);
-          
-          setIsLoading(false);
-          toast({
-            title: "Login successful!",
-            description: "Welcome back to Releaf.",
-          });
-          
-          navigate('/');
-        } catch (error) {
-          console.error("Error setting Supabase session:", error);
-          setIsLoading(false);
-          setError('Authentication error. Please try again.');
-        }
-      } else {
-        // Invalid login
-        setIsLoading(false);
-        setError('Invalid email or password. Please try again.');
-        toast({
-          variant: "destructive",
-          title: "Login failed",
-          description: "Invalid email or password.",
-        });
-      }
-    }, 1000);
+    try {
+      // Use our auth service to login
+      await login({ email, password });
+      
+      toast({
+        title: "Login successful!",
+        description: "Welcome back to Releaf.",
+      });
+      
+      navigate('/dashboard');
+    } catch (error: any) {
+      console.error("Login error:", error);
+      setError(error.message || 'Login failed. Please try again.');
+      toast({
+        variant: "destructive",
+        title: "Login failed",
+        description: error.message || "Invalid email or password.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -111,7 +81,7 @@ const LoginForm = () => {
         {isLoading ? "Logging in..." : "Log in"}
       </Button>
       <div className="mt-4 text-center text-sm text-muted-foreground">
-        <p>Demo credentials:</p>
+        <p>Test account:</p>
         <p>Email: user@example.com</p>
         <p>Password: password123</p>
       </div>

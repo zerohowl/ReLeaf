@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import UploadZone from './UploadZone';
 import ScanResult from './ScanResult';
 import { analyzeRecyclingAction } from '@/integrations/gemini/image-video-analyzer';
+import jsQR from 'jsqr';
 
 export interface ImageScanProps {
   onScanComplete?: () => void;
@@ -34,6 +34,27 @@ const ImageScan = ({ onScanComplete }: ImageScanProps) => {
       });
       
       const base64 = await base64Promise;
+      // Attempt QR code detection from uploaded image
+      const imgEl = new Image();
+      await new Promise((resolve) => {
+        imgEl.onload = resolve;
+        imgEl.src = base64 as string;
+      });
+      const canvas = document.createElement('canvas');
+      canvas.width = imgEl.width;
+      canvas.height = imgEl.height;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(imgEl, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, canvas.width, canvas.height);
+        if (code) {
+          setScanResult({ qrData: code.data });
+          toast({ title: 'QR Code Detected', description: code.data });
+          setIsProcessing(false);
+          return;
+        }
+      }
       const analysis = await analyzeRecyclingAction(base64 as string, false);
       
       if (!analysis.isCorrect) {
@@ -104,6 +125,23 @@ const ImageScan = ({ onScanComplete }: ImageScanProps) => {
     }
   };
 
+  if (scanResult && 'qrData' in scanResult) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>QR Code Result</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="break-all text-muted-foreground">{scanResult.qrData}</p>
+          <div className="flex space-x-2">
+            <Button onClick={saveResult}>Save</Button>
+            <Button variant="outline" onClick={resetScan}>Reset</Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (scanResult) {
     return (
       <ScanResult 
@@ -125,8 +163,7 @@ const ImageScan = ({ onScanComplete }: ImageScanProps) => {
       </CardHeader>
       <CardContent>
         <p className="mb-4 text-muted-foreground">
-          Upload a photo of an item you want to check for recyclability.
-          Our AI will identify the object and provide recycling information.
+          Upload a photo of an item you want to check for recyclability. For most accurate results, include a QR code in your image. Otherwise, AI prediction will be used.
         </p>
         
         <UploadZone
@@ -148,4 +185,3 @@ const ImageScan = ({ onScanComplete }: ImageScanProps) => {
 };
 
 export default ImageScan;
-

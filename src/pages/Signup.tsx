@@ -25,7 +25,7 @@ const Signup = () => {
 
   return (
     <PageTransition>
-      <BackgroundImage blurred={false}>
+      <BackgroundImage>
         <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
           <AuthCard
             title="Join Releaf"

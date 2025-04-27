@@ -35,7 +35,7 @@ const Login = () => {
   }
 
   return (
-    <BackgroundImage blurred={false}>
+    <BackgroundImage>
       {/* Main container */}
       <div className="min-h-screen flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-eco-green/10 to-eco-blue/10">
 

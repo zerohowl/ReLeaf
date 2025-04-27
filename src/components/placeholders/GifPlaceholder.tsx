@@ -1,5 +1,6 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { LucideIcon } from 'lucide-react';
+import ImageWithFallback from '@/components/ImageWithFallback';
 
 interface GifPlaceholderProps {
   icon: LucideIcon;
@@ -30,13 +31,14 @@ const GifPlaceholder = ({ icon: Icon, title, className = '', children, gifSrc }:
       {/* Show actual GIF if available */}
       {gifSrc ? (
         <div className="relative w-full h-full">
-          <img 
+          <ImageWithFallback 
             src={gifSrc} 
             alt={title}
             className={`w-full h-full object-cover ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+            style={{ transition: 'opacity 0.3s ease' }}
+            fallbackSrc="/placeholder.svg"
             onLoad={() => setIsLoaded(true)}
             onError={() => setHasError(true)}
-            style={{ transition: 'opacity 0.3s ease' }}
           />
           
           {/* Overlay with title and description */}

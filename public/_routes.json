@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": [
+    "/assets/*",
+    "/productpagegifs/*",
+    "/teamphotos/*",
+    "/*.svg",
+    "/*.png",
+    "/*.gif",
+    "/*.ico",
+    "/*.json"
+  ]
+}

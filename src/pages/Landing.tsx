@@ -139,7 +139,7 @@ const Landing = () => {
           {/* Logo + wordmark */}
           <Link to="/" className="flex items-center gap-3">
             <ImageWithFallback 
-              src="/newLogo.png" 
+              src="/newLogo.png?v=1714306800" 
               alt="Releaf logo" 
               className="h-10 w-10" 
               fallbackSrc="/placeholder.svg"
@@ -334,7 +334,7 @@ const Landing = () => {
                     <GifPlaceholder 
                       icon={ClipboardCheck} 
                       title="Upload items to recycle properly"
-                      gifSrc="/clip1.svg"
+                      gifSrc="/productpagegifs/clip1.svg?v=1714306800"
                     >
                       Scan questionable items for proper recycling guidance
                     </GifPlaceholder>
@@ -343,7 +343,7 @@ const Landing = () => {
                     <GifPlaceholder 
                       icon={Camera} 
                       title="AI analyzes your items in real-time"
-                      gifSrc="/clip2.svg"
+                      gifSrc="/productpagegifs/clip2.svg?v=1714306800"
                     >
                       Watch as our AI determines recyclability and materials
                     </GifPlaceholder>
@@ -352,7 +352,7 @@ const Landing = () => {
                     <GifPlaceholder 
                       icon={Info} 
                       title="Track your environmental impact"
-                      gifSrc="/clip3.svg"
+                      gifSrc="/productpagegifs/clip3.svg?v=1714306800"
                     >
                       View your history and build streaks to save the planet
                     </GifPlaceholder>

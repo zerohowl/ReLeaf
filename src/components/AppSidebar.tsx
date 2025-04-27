@@ -92,7 +92,7 @@ export function AppSidebar() {
       <div className="flex items-center justify-between p-4">
         <Link to="/" className="flex items-center gap-2 transition-colors hover:text-eco-green">
           <img
-            src="/newLogo.png"        
+            src="/newLogo.png?v=1714306800"        
             alt="Releaf Logo"  
             className="h-16 w-auto"  
           />

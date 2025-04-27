@@ -51,9 +51,16 @@ export const register = async (credentials: RegisterCredentials): Promise<User> 
   // For demo mode, use mock authentication
   if (IS_DEMO) {
     console.log('Using mock authentication for demo');
-    localStorage.setItem(TOKEN_KEY, MOCK_TOKEN);
-    localStorage.setItem(USER_KEY, JSON.stringify(MOCK_USER));
-    return Promise.resolve(MOCK_USER);
+    
+    // For demo, only allow registration with test credentials
+    if (credentials.email === 'user@example.com' && credentials.password === 'password123') {
+      localStorage.setItem(TOKEN_KEY, MOCK_TOKEN);
+      localStorage.setItem(USER_KEY, JSON.stringify(MOCK_USER));
+      return Promise.resolve(MOCK_USER);
+    } else {
+      // Same error message as login for consistency
+      throw new Error('Invalid email or password. For demo, use user@example.com / password123');
+    }
   }
 
   const response = await fetch(`${API_URL}/register`, {

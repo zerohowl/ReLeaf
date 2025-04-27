@@ -6,7 +6,6 @@ import GifPlaceholder from '@/components/placeholders/GifPlaceholder';
 import { LucideIcon } from 'lucide-react';
 import ImageWithFallback from '@/components/ImageWithFallback';
 import { motion } from 'framer-motion';
-import ChatAssistant from '@/components/assistant/ChatAssistant';
 import { useEffect } from 'react';
 
 const FeatureCard = ({ icon: Icon, title, children, index }: { icon: LucideIcon; title: string; children: string; index: number }) => (
@@ -123,8 +122,6 @@ const Landing = () => {
 
   return (
   <BackgroundImage>
-    {/* Chat Assistant - only on landing page */}
-    <ChatAssistant />
     <div className="min-h-screen flex flex-col items-center py-12 px-4">
       {/* Central card */}
       <motion.div 

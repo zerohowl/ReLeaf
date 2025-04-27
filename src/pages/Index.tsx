@@ -134,10 +134,10 @@ const Dashboard = () => {
             />
           </div>
 
-      <div className="flex justify-center my-8">
+      <div className="flex justify-center my-10">
         <Link to="/upload">
-          <Button className="glass-panel px-8 py-6 text-lg font-medium hover:bg-success-green/10 hover:border-success-green/30 transition-all hover:scale-105">
-            <Upload className="h-5 w-5 mr-2" />
+          <Button className="glass-panel px-10 py-7 text-lg font-semibold bg-eco-green/20 border-2 border-eco-green/30 shadow-lg shadow-eco-green/20 hover:bg-eco-green/30 hover:border-eco-green/50 hover:shadow-eco-green/30 transition-all hover:scale-105 animate-pulse-slow">
+            <Upload className="h-6 w-6 mr-3" />
             Scan New Item
           </Button>
         </Link>

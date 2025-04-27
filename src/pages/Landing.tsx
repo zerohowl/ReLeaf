@@ -5,6 +5,7 @@ import { Zap, Camera, MessageCircle, Video, Trophy, Leaf } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ChatAssistant from '@/components/assistant/ChatAssistant';
+import { useEffect } from 'react';
 
 const FeatureCard = ({ icon: Icon, title, children, index }: { icon: LucideIcon; title: string; children: string; index: number }) => (
   <motion.div 
@@ -21,7 +22,75 @@ const FeatureCard = ({ icon: Icon, title, children, index }: { icon: LucideIcon;
   </motion.div>
 );
 
-const Landing = () => (
+const Landing = () => {
+  
+  // Add styles for section highlighting
+  useEffect(() => {
+    // Add CSS for highlighted sections
+    const style = document.createElement('style');
+    style.textContent = `
+      .highlight-section {
+        animation: highlight-pulse 1.5s ease-in-out;
+      }
+      
+      @keyframes highlight-pulse {
+        0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+        50% { box-shadow: 0 0 20px 10px rgba(74, 222, 128, 0.3); }
+        100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
+  // Add smooth scroll behavior with animation
+  useEffect(() => {
+    // Set up enhanced scrolling behavior
+    const handleNavClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'A' && target.getAttribute('href')?.startsWith('#')) {
+        e.preventDefault();
+        const id = target.getAttribute('href')?.substring(1);
+        const element = document.getElementById(id as string);
+        
+        if (element) {
+          // Highlight the section visually
+          element.classList.add('highlight-section');
+          
+          // Scroll with a custom animation
+          const yOffset = -80; // Offset for fixed headers
+          const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          
+          window.scrollTo({
+            top: y,
+            behavior: 'smooth'
+          });
+          
+          // Remove highlight after animation completes
+          setTimeout(() => {
+            element.classList.remove('highlight-section');
+          }, 1500);
+        }
+      }
+    };
+    
+    // Add event listeners to all navigation links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', handleNavClick as EventListener);
+    });
+    
+    // Clean up event listeners
+    return () => {
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.removeEventListener('click', handleNavClick as EventListener);
+      });
+    };
+  }, []);
+  
+  return (
   <BackgroundImage>
     {/* Chat Assistant - only on landing page */}
     <ChatAssistant />
@@ -45,11 +114,51 @@ const Landing = () => (
             <span className="font-extrabold text-2xl text-eco-green tracking-wide">RELEAF</span>
           </Link>
           <ul className="hidden md:flex gap-8 text-base font-medium text-eco-green">
-            <li><a href="#features" className="hover:text-eco-green/80 transition-colors">Features</a></li>
-            <li><a href="#how-it-works" className="hover:text-eco-green/80 transition-colors">How It Works</a></li>
-            <li><a href="#impact" className="hover:text-eco-green/80 transition-colors">Impact</a></li>
-            <li><a href="#team" className="hover:text-eco-green/80 transition-colors">About the Team</a></li>
-            <li><a href="#faq" className="hover:text-eco-green/80 transition-colors">FAQ</a></li>
+            <li>
+              <a 
+                href="#features" 
+                className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300"
+              >
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
+                Features
+              </a>
+            </li>
+            <li>
+              <a 
+                href="#how-it-works" 
+                className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300"
+              >
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
+                How It Works
+              </a>
+            </li>
+            <li>
+              <a 
+                href="#impact" 
+                className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300"
+              >
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
+                Impact
+              </a>
+            </li>
+            <li>
+              <a 
+                href="#team" 
+                className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300"
+              >
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
+                About the Team
+              </a>
+            </li>
+            <li>
+              <a 
+                href="#faq" 
+                className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300"
+              >
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
+                FAQ
+              </a>
+            </li>
           </ul>
           <Link to="/login">
             <Button className="px-8 py-6 text-base rounded-xl transition-all hover:scale-105">Get Started</Button>
@@ -267,11 +376,26 @@ const Landing = () => (
           className="border-t pt-8 mt-8 text-center text-base text-eco-green"
         >
           <div className="flex flex-wrap justify-center gap-8 mb-4">
-            <a href="#features" className="hover:text-eco-green/80 transition-colors">Features</a>
-            <a href="#how-it-works" className="hover:text-eco-green/80 transition-colors">How It Works</a>
-            <a href="#impact" className="hover:text-eco-green/80 transition-colors">Impact</a>
-            <a href="#team" className="hover:text-eco-green/80 transition-colors">About the Team</a>
-            <a href="#faq" className="hover:text-eco-green/80 transition-colors">FAQ</a>
+            <a href="#features" className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300">
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
+              Features
+            </a>
+            <a href="#how-it-works" className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300">
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
+              How It Works
+            </a>
+            <a href="#impact" className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300">
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
+              Impact
+            </a>
+            <a href="#team" className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300">
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
+              About the Team
+            </a>
+            <a href="#faq" className="relative px-2 py-1 overflow-hidden group hover:text-eco-green transition-all duration-300">
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-eco-green group-hover:w-full transition-all duration-300"></span>
+              FAQ
+            </a>
           </div>
           
           <div className="text-sm text-muted-foreground mt-4">
@@ -281,6 +405,7 @@ const Landing = () => (
       </motion.div>
     </div>
   </BackgroundImage>
-);
+  );
+};
 
 export default Landing;

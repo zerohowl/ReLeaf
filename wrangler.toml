@@ -1,6 +1,6 @@
-# Simple Cloudflare Pages configuration
+# Cloudflare Pages static site configuration
+name = "releaf"
+compatibility_date = "2025-04-27"
 
-[build]
-command = "npm run build"
-publish = "dist"
-
+[assets]
+directory = "./dist"

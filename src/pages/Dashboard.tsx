@@ -15,15 +15,10 @@ import PageTransition from '@/components/PageTransition';
 import BackgroundImage from '@/components/BackgroundImage';
 import { getPersonalization, PersonalizationData, TipCard as TipCardType } from '@/services/surveyService';
 import { getUserUploads, UserUpload } from '@/services/uploadService';
+import { getLeaderboard, getUserPoints, updateUserPoints, LeaderboardUser } from '@/services/leaderboardService';
 
-// Define leaderboard users here to share with Leaderboard page
-export const leaderboardUsers = [
-  { name: 'Kevin H.', score: 1245, rank: 1 },
-  { name: 'Turat Z.', score: 1120, rank: 2 },
-  { name: 'Sean E.', score: 980, rank: 3 },
-  { name: 'Enzo G.', score: 875, rank: 4 },
-  { name: 'Ava W.', score: 840, rank: 5 },
-];
+// We now get leaderboard data from the leaderboardService
+// It provides a centralized source of truth for the app
 
 const Dashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -37,7 +32,7 @@ const Dashboard = () => {
     itemsScanned: 0,
     recyclableItems: 0,
     currentStreak: 0,
-    totalPoints: 0,
+    totalPoints: getUserPoints(), // Initialize with persisted user points
   });
 
   const [streakData, setStreakData] = useState({
@@ -46,7 +41,9 @@ const Dashboard = () => {
     streakDays: [] as number[], // Days of the week with streak activity
   });
 
-  // Use the shared leaderboard users
+  // Get leaderboard data from the service
+  const [leaderboardUsers, setLeaderboardUsers] = useState<LeaderboardUser[]>([]);
+  const [isLoadingLeaderboard, setIsLoadingLeaderboard] = useState(true);
 
   // Initialize score breakdown with zeros
   const [scoreCategories, setScoreCategories] = useState([
@@ -180,6 +177,25 @@ const Dashboard = () => {
     };
   };
 
+  // Load leaderboard data
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      if (isAuthenticated) {
+        setIsLoadingLeaderboard(true);
+        try {
+          const data = await getLeaderboard('all-time');
+          setLeaderboardUsers(data);
+        } catch (error) {
+          console.error('Error fetching leaderboard:', error);
+        } finally {
+          setIsLoadingLeaderboard(false);
+        }
+      }
+    };
+    
+    fetchLeaderboard();
+  }, [isAuthenticated]);
+
   // Load user uploads and calculate stats
   useEffect(() => {
     const fetchUserUploads = async () => {
@@ -192,21 +208,30 @@ const Dashboard = () => {
           // Calculate stats
           const itemsScanned = uploads.length;
           const recyclableItems = uploads.filter(upload => upload.isRecyclable).length;
-          let totalPoints = uploads.reduce((total, upload) => total + (upload.points || 0), 0);
           
           // Calculate streak data
           const streakInfo = calculateStreakData(uploads);
           setStreakData(streakInfo);
           
-          // Update total points with streak bonus (10 pts per day)
-          totalPoints += streakInfo.currentStreak * 10;
+          // Get current user points from localStorage (handled by leaderboardService)
+          const storedPoints = getUserPoints();
           
-          // Set stats
+          // Calculate points from uploads
+          let calculatedPoints = uploads.reduce((total, upload) => total + (upload.points || 0), 0);
+          calculatedPoints += streakInfo.currentStreak * 10; // Add streak bonus
+          
+          // Update points in localStorage if they've changed
+          if (calculatedPoints > storedPoints) {
+            console.log(`Updating user points: ${storedPoints} -> ${calculatedPoints}`);
+            updateUserPoints(calculatedPoints);
+          }
+          
+          // Set stats with latest points
           setStats({
             itemsScanned,
             recyclableItems,
             currentStreak: streakInfo.currentStreak,
-            totalPoints
+            totalPoints: calculatedPoints
           });
           
           // Calculate score breakdown
@@ -369,7 +394,7 @@ const Dashboard = () => {
             </div>
             
             <div className="lg:col-span-4">
-              <LeaderboardCard users={leaderboardUsers} />
+              <LeaderboardCard users={isLoadingLeaderboard ? [] : leaderboardUsers} />
             </div>
 
             <div className="lg:col-span-4">

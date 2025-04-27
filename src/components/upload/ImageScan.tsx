@@ -6,6 +6,7 @@ import UploadZone from './UploadZone';
 import ScanResult from './ScanResult';
 import { uploadFile } from '@/services/uploadService';
 import { analyzeMedia } from '@/services/analysisService';
+import { addUserPoints } from '@/services/leaderboardService';
 import jsQR from 'jsqr';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -213,12 +214,20 @@ const ImageScan = ({
         return;
       }
 
-      // Create results object
+      // Create results object - ENSURE THIS IS CONSISTENT with how history displays items
+      const isRecyclable = analysis.isRecyclable || false;
+      
+      // Log the analysis result for debugging
+      console.log('Analysis result:', analysis);
+      
       const result = {
         object: analysis.objectType || 'Unknown Item',
-        isRecyclable: analysis.isRecyclable || false,
+        isRecyclable: isRecyclable, // Store the boolean directly, not derived
         confidence: analysis.confidence * 100,
-        material: 'Analyzing...',
+        material: analysis.objectType ? analysis.objectType.toLowerCase().includes('plastic') ? 'Plastic' : 
+                                      analysis.objectType.toLowerCase().includes('paper') ? 'Paper' : 
+                                      analysis.objectType.toLowerCase().includes('glass') ? 'Glass' : 
+                                      analysis.objectType.toLowerCase().includes('metal') ? 'Metal' : 'Mixed' : 'Unknown',
         explanation: analysis.explanation || '',
         locations: [
           {
@@ -244,8 +253,32 @@ const ImageScan = ({
       }));
       
       try {
-        // Save to database
-        await uploadFile(uploadedImage, analysis.explanation);
+        // Save to database with detailed metadata to ensure consistency
+        const uploadData = {
+          file: uploadedImage,
+          description: analysis.explanation || '',
+          metadata: {
+            identifiedItem: result.object,
+            isRecyclable: result.isRecyclable,
+            confidence: result.confidence,
+            materialType: result.material
+          }
+        };
+        
+        // Log for debugging
+        console.log('Saving scan with metadata:', uploadData);
+        
+        // Update user points for this scan
+        const pointsEarned = result.isRecyclable ? Math.floor(Math.random() * 30) + 10 : 5;
+        const newTotalPoints = addUserPoints(pointsEarned);
+        console.log(`Added ${pointsEarned} points, new total: ${newTotalPoints}`);
+        
+        await uploadFile(uploadedImage, JSON.stringify({
+          identifiedItem: result.object,
+          isRecyclable: result.isRecyclable,
+          recyclingStatus: result.isRecyclable ? 'recyclable' : 'not recyclable',
+          points: pointsEarned
+        }));
         
         setProcessingState(prev => ({
           ...prev,
@@ -275,11 +308,16 @@ const ImageScan = ({
       // Update the scan result state
       setScanResult(result);
 
+      // Get points message for toast
+      const pointsMessage = result.isRecyclable ? 
+        `You earned ${result.isRecyclable ? Math.floor(Math.random() * 30) + 10 : 5} points!` : 
+        'Thanks for checking! Even non-recyclable scans help our database.';
+      
       toast({
         title: analysis.isRecyclable ? "Recyclable Item!" : "Non-Recyclable Item",
-        description: analysis.explanation || (analysis.isRecyclable ? 
+        description: `${analysis.explanation || (analysis.isRecyclable ? 
           "This item can be recycled. Check the locations below." : 
-          "This item should go in the regular trash."),
+          "This item should go in the regular trash.")} ${pointsMessage}`,
         variant: analysis.isRecyclable ? "default" : "destructive",
       });
 

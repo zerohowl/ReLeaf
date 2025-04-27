@@ -9,6 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { AlertCircle, Check, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { uploadFile } from '@/services/uploadService';
+import { addUserPoints } from '@/services/leaderboardService';
 
 interface ProcessingState {
   stage: 'idle' | 'uploading' | 'analyzing' | 'detecting-actions' | 'verifying' | 'saving' | 'complete' | 'error';
@@ -135,17 +136,32 @@ const VideoUpload = ({
         details: 'Recording to your recycling history'
       }));
       
-      // Actually save to database
+      // Calculate and update points - not just simulate anymore
+      const isRecyclable = analysis.isRecyclable || false;
+      const points = isRecyclable ? 25 : 5; // Give 5 points even for non-recyclable items
+      
+      // Save to database with detailed metadata
       try {
-        await uploadFile(uploadedVideo, 'Video showing recycling activity');
+        const metadata = {
+          identifiedItem: analysis.objectType || 'Video Activity',
+          isRecyclable: isRecyclable,
+          recyclingStatus: isRecyclable ? 'recyclable' : 'not recyclable',
+          points: points,
+          analysisDetails: analysis.explanation || 'Video showing recycling activity'
+        };
+        
+        console.log('Saving video with metadata:', metadata);
+        await uploadFile(uploadedVideo, JSON.stringify(metadata));
       } catch (uploadError) {
         console.error('Error saving to history:', uploadError);
         // Continue despite error
       }
       
-      // Simulate points calculation
-      const points = analysis.isRecyclable ? 25 : 0;
-      const correctDisposal = analysis.isRecyclable;
+      // Update the user's points in the leaderboard service
+      const newTotalPoints = addUserPoints(points);
+      console.log(`Added ${points} points for video upload, new total: ${newTotalPoints}`);
+      
+      const correctDisposal = isRecyclable;
       
       // Final state
       setProcessingState(prev => ({
@@ -159,11 +175,11 @@ const VideoUpload = ({
       }));
       
       toast({
-        title: correctDisposal ? "Good job!" : "Incorrect disposal",
+        title: correctDisposal ? "Good job!" : "Video Analysis Complete",
         description: correctDisposal
-          ? `You've correctly disposed of this item and earned ${points} points!`
-          : "The AI detected incorrect disposal. Check the recycling guidelines and try again.",
-        variant: correctDisposal ? "default" : "destructive",
+          ? `You've correctly disposed of this item and earned ${points} points! Your new total is ${newTotalPoints} points.`
+          : `The AI has analyzed your video. You've earned ${points} points for submitting. Your new total is ${newTotalPoints} points.`,
+        variant: correctDisposal ? "default" : "default",
       });
       
       // Wait before cleanup to allow user to see results

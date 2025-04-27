@@ -117,6 +117,26 @@ const analyzeRecyclingAction = async (imageOrVideoBase64: string, isVideo: boole
         const jsonMatch = recyclingText.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           const analysisData = JSON.parse(jsonMatch[0]);
+          
+          // Apply correction for commonly recyclable materials that might be misclassified
+          if (objectType) {
+            const lowerObjectType = objectType.toLowerCase();
+            
+            // Metals are almost always recyclable
+            if (lowerObjectType.includes('aluminum') || 
+                lowerObjectType.includes('metal') || 
+                lowerObjectType.includes('can') || 
+                lowerObjectType.includes('tin')) {
+              
+              console.log(`Correcting recyclability for ${objectType} - metals are recyclable`);
+              analysisData.isRecyclable = true;
+              
+              if (!analysisData.explanation?.includes('recyclable')) {
+                analysisData.explanation = `This ${objectType} is recyclable. Metal and aluminum items are among the most valuable recyclable materials and can be recycled indefinitely without loss of quality.`;
+              }
+            }
+          }
+          
           return {
             isCorrect: true,
             ...analysisData
@@ -127,12 +147,30 @@ const analyzeRecyclingAction = async (imageOrVideoBase64: string, isVideo: boole
       }
 
       // Fallback if parsing fails
+      let isRecyclable = recyclingText.toLowerCase().includes('recyclable');
+      let explanation = "This appears to be a recyclable item, but I couldn't determine specific details.";
+      
+      // Handle common recyclable materials even in fallback case
+      if (objectType) {
+        const lowerObjectType = objectType.toLowerCase();
+        
+        // Apply rules for commonly recyclable materials
+        if (lowerObjectType.includes('aluminum') || 
+            lowerObjectType.includes('metal') || 
+            lowerObjectType.includes('can') || 
+            lowerObjectType.includes('tin')) {
+          
+          isRecyclable = true;
+          explanation = `This ${objectType} is recyclable. Metal and aluminum items are among the most valuable recyclable materials.`;
+        }
+      }
+      
       return {
         isCorrect: true,
         confidence: 0.7,
         objectType: objectType || 'Unknown item',
-        isRecyclable: recyclingText.toLowerCase().includes('recyclable'),
-        explanation: "This appears to be a recyclable item, but I couldn't determine specific details."
+        isRecyclable: isRecyclable,
+        explanation: explanation
       };
     } else {
       // Video analysis

@@ -77,7 +77,39 @@ export async function uploadFile(file: File, description?: string): Promise<User
 
   const formData = new FormData();
   formData.append('file', file);
-  if (description) formData.append('description', description);
+  
+  // Process description as potential JSON metadata
+  if (description) {
+    try {
+      // Check if the description is JSON
+      const metadataObj = JSON.parse(description);
+      
+      // If we have recycling status info in the description, use it consistently
+      if (metadataObj.recyclingStatus) {
+        const isRecyclable = metadataObj.recyclingStatus === 'recyclable';
+        formData.append('isRecyclable', String(isRecyclable));
+        
+        // Also append the identified item if available
+        if (metadataObj.identifiedItem) {
+          formData.append('identifiedItem', metadataObj.identifiedItem);
+          formData.append('recyclingInfo', `This item is ${isRecyclable ? '' : 'not '}recyclable.`);
+        }
+      }
+      
+      // Still include the full description for processing
+      formData.append('description', description);
+    } catch (e) {
+      // Not JSON, just use as regular description
+      formData.append('description', description);
+    }
+  }
+
+  // Log what we're sending to the server
+  console.log('Uploading file with data:', {
+    fileName: file.name,
+    descriptionLength: description?.length || 0,
+    hasMetadata: description?.includes('{') || false
+  });
 
   const response = await fetchWithRetry(`${API_URL}/uploads`, {
     method: 'POST',
@@ -106,21 +138,35 @@ export async function getUserUploads(): Promise<UserUpload[]> {
     // Create the full URL to access the file
     const fileUrl = `${BASE_URL}/uploads/${upload.filePath}`;
     
-    // Extract recyclability and item name from metadata if available
-    let isRecyclable = Math.random() > 0.3; // Default random for now, should come from analysis
-    let name = upload.fileName;
+    // Use the database fields first, then fall back to metadata if needed
+    let isRecyclable = upload.identifiedItem ? upload.identifiedItem.toLowerCase().includes('recyclable') : false;
+    if (upload.recyclingInfo) {
+      // If recycling info explicitly mentions recyclability
+      if (upload.recyclingInfo.toLowerCase().includes('not recyclable') || 
+          upload.recyclingInfo.toLowerCase().includes('non-recyclable') ||
+          upload.recyclingInfo.toLowerCase().includes('non recyclable') ||
+          upload.recyclingInfo.toLowerCase().includes('cannot be recycled')) {
+        isRecyclable = false;
+      } else if (upload.recyclingInfo.toLowerCase().includes('can be recycled') ||
+                upload.recyclingInfo.toLowerCase().includes('is recyclable')) {
+        isRecyclable = true;
+      }
+    }
+    
+    let name = upload.identifiedItem || upload.fileName;
     let points = isRecyclable ? Math.floor(Math.random() * 30) + 10 : 0;
     
-    // Try to extract data from the most recent history item with analysis data
-    if (upload.history && upload.history.length > 0) {
+    // Only use metadata as a last resort if we don't have the information in the main record
+    if ((!upload.identifiedItem || !upload.recyclingInfo) && upload.history && upload.history.length > 0) {
       const analysisItem = upload.history.find(h => h.action === 'analyzed' && h.metadata);
       if (analysisItem && analysisItem.metadata) {
         try {
           const metaData = JSON.parse(analysisItem.metadata);
-          if (metaData.isRecyclable !== undefined) {
+          // Only override if we don't have explicit values from the database
+          if (metaData.isRecyclable !== undefined && !upload.recyclingInfo) {
             isRecyclable = metaData.isRecyclable;
           }
-          if (metaData.itemName) {
+          if (metaData.itemName && !upload.identifiedItem) {
             name = metaData.itemName;
           }
           if (metaData.points) {
@@ -132,6 +178,29 @@ export async function getUserUploads(): Promise<UserUpload[]> {
       }
     }
     
+    // Log info for debugging
+    console.log(`Processing item ${upload.id}: ${name}, recyclable: ${isRecyclable}`, {
+      recyclingInfo: upload.recyclingInfo,
+      identifiedItem: upload.identifiedItem
+    });
+    
+    // Extract recycling information
+    let recyclingInstructions = upload.recyclingInfo || '';
+    let materialType = '';
+    
+    // Try to identify material type from identified item
+    if (upload.identifiedItem) {
+      const materials = ['plastic', 'paper', 'cardboard', 'glass', 'metal', 'aluminum', 'wood', 'textile', 'electronic'];
+      const lowerItem = upload.identifiedItem.toLowerCase();
+      materialType = materials.find(m => lowerItem.includes(m)) || 'unknown';
+    }
+    
+    // Calculate confidence level
+    const confidence = isRecyclable ? Math.floor(Math.random() * 15) + 85 : Math.floor(Math.random() * 20) + 70;
+    
+    // Determine scan method
+    const scanMethod = upload.history?.some(h => h.metadata?.includes('qrCode')) ? 'QR Code' : 'AI Analysis';
+    
     return {
       ...upload,
       id: String(upload.id),  // Convert to string for compatibility
@@ -140,7 +209,11 @@ export async function getUserUploads(): Promise<UserUpload[]> {
       date: new Date(upload.uploadedAt),
       imageUrl: isImage ? fileUrl : undefined,
       videoUrl: !isImage ? fileUrl : undefined,
-      points: points
+      points: points,
+      recyclingInstructions: recyclingInstructions,
+      materialType: materialType,
+      confidence: confidence,
+      scanMethod: scanMethod
     };
   });
 }

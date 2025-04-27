@@ -1,6 +1,14 @@
 // leaderboardService.ts - Handles leaderboard data fetching
 import { getToken } from './authService';
-import { leaderboardUsers as dashboardLeaderboard } from '@/pages/Dashboard';
+
+// Central source of truth for leaderboard data
+const BASE_LEADERBOARD_USERS = [
+  { id: 1, name: 'Kevin H.', score: 1245, rank: 1, isCurrentUser: false },
+  { id: 2, name: 'Turat Z.', score: 1120, rank: 2, isCurrentUser: false },
+  { id: 3, name: 'Sean E.', score: 980, rank: 3, isCurrentUser: true },
+  { id: 4, name: 'Enzo G.', score: 875, rank: 4, isCurrentUser: false },
+  { id: 5, name: 'Ava W.', score: 840, rank: 5, isCurrentUser: false },
+];
 
 const API_URL = 'http://localhost:4000/api';
 
@@ -59,35 +67,63 @@ export async function getLeaderboard(timeFrame: 'weekly' | 'monthly' | 'all-time
   }
 }
 
-// Use the same leaderboard data as Dashboard
+// Generate leaderboard data based on the central source
 function getFallbackLeaderboardData(timeFrame: string): LeaderboardUser[] {
-  // Start with the dashboard leaderboard data
-  let data = dashboardLeaderboard.map((user, index) => ({
-    id: index + 1,
-    name: user.name,
-    score: user.score,
-    rank: user.rank,
-    isCurrentUser: user.name === 'Sean E.' // Mark Sean as the current user
-  }));
+  // Get a fresh copy of the base data
+  let data = [...BASE_LEADERBOARD_USERS];
   
-  // Adjust scores based on timeframe
-  if (timeFrame === 'weekly') {
-    // For weekly, reduce points to roughly 1/3
-    return data.map(user => ({
+  // Add user's current points if available in localStorage
+  const userPoints = getUserPoints();
+  if (userPoints > 0) {
+    data = data.map(user => {
+      if (user.isCurrentUser) {
+        return { ...user, score: userPoints };
+      }
+      return user;
+    });
+    
+    // Re-sort based on new scores and update ranks
+    data.sort((a, b) => b.score - a.score);
+    data = data.map((user, index) => ({
       ...user,
-      score: Math.round(user.score / 3)
-    }));
-  } else if (timeFrame === 'monthly') {
-    // For monthly, reduce points slightly
-    return data.map(user => ({
-      ...user,
-      score: Math.round(user.score * 0.9)
-    }));
-  } else {
-    // For all-time, increase points
-    return data.map(user => ({
-      ...user,
-      score: Math.round(user.score * 3.5)
+      rank: index + 1
     }));
   }
+  
+  // Adjust scores based on timeframe (while maintaining relative positions)
+  if (timeFrame === 'weekly') {
+    // For weekly, use roughly 1/4 of points
+    return data.map(user => ({
+      ...user,
+      score: Math.round(user.score / 4)
+    }));
+  } else if (timeFrame === 'monthly') {
+    // For monthly, use roughly 1/2 of points
+    return data.map(user => ({
+      ...user,
+      score: Math.round(user.score / 2)
+    }));
+  } else {
+    // For all-time, use full points
+    return data;
+  }
+}
+
+// Function to get current user points from localStorage
+export function getUserPoints(): number {
+  const pointsStr = localStorage.getItem('user_points');
+  return pointsStr ? parseInt(pointsStr, 10) : 980; // Default to 980 if not set
+}
+
+// Function to update user points
+export function updateUserPoints(newPoints: number): void {
+  localStorage.setItem('user_points', newPoints.toString());
+}
+
+// Function to add points to the user
+export function addUserPoints(pointsToAdd: number): number {
+  const currentPoints = getUserPoints();
+  const newPoints = currentPoints + pointsToAdd;
+  updateUserPoints(newPoints);
+  return newPoints;
 }

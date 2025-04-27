@@ -37,7 +37,6 @@ const Settings = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        // Use our custom settings service instead of Supabase
         const userSettings = await getSettings();
         
         setSettings(prev => ({
@@ -59,16 +58,13 @@ const Settings = () => {
 
   const handleResetData = async () => {
     try {
-      // Show loading toast
       toast({
         title: "Resetting data...",
         description: "Please wait while we reset your data",
       });
       
-      // Call the backend API to reset user data
       await resetUserData();
       
-      // Clear local storage items
       localStorage.removeItem('onboarding_completed');
       localStorage.removeItem('onboarding_survey_data');
       
@@ -77,7 +73,6 @@ const Settings = () => {
         description: "All your app data has been reset. Refreshing page...",
       });
       
-      // Wait a moment then reload the page
       setTimeout(() => {
         window.location.reload();
       }, 1500);

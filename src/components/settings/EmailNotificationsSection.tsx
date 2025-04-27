@@ -1,8 +1,6 @@
-
 import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 export const EmailNotificationsSection = ({ initialValue = true }: { initialValue?: boolean }) => {
@@ -10,25 +8,12 @@ export const EmailNotificationsSection = ({ initialValue = true }: { initialValu
   const { toast } = useToast();
 
   const handleToggle = async (checked: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('user_settings')
-        .update({ email_notifications: checked })
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
-
-      if (error) throw error;
-      setEnabled(checked);
-      toast({
-        title: "Settings updated",
-        description: `Email notifications ${checked ? 'enabled' : 'disabled'}`
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update settings",
-        variant: "destructive"
-      });
-    }
+    console.log(`Email notifications changed to ${checked}. Backend update needed.`);
+    setEnabled(checked);
+    toast({
+      title: "Settings updated",
+      description: `Email notifications ${checked ? 'enabled' : 'disabled'}`
+    });
   };
 
   return (

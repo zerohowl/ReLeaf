@@ -4,6 +4,7 @@ import BackgroundImage from '@/components/BackgroundImage';
 import { Zap, Camera, MessageCircle, Video, Trophy, Leaf, ClipboardCheck, Upload, Info, Award } from 'lucide-react';
 import GifPlaceholder from '@/components/placeholders/GifPlaceholder';
 import { LucideIcon } from 'lucide-react';
+import ImageWithFallback from '@/components/ImageWithFallback';
 import { motion } from 'framer-motion';
 import ChatAssistant from '@/components/assistant/ChatAssistant';
 import { useEffect } from 'react';
@@ -140,7 +141,12 @@ const Landing = () => {
           className="flex items-center justify-between mb-20">
           {/* Logo + wordmark */}
           <Link to="/" className="flex items-center gap-3">
-            <img src="/newLogo.png" alt="Releaf logo" className="h-10 w-10" />
+            <ImageWithFallback 
+              src="/newLogo.png" 
+              alt="Releaf logo" 
+              className="h-10 w-10" 
+              fallbackSrc="/placeholder.svg"
+            />
             <span className="font-extrabold text-2xl text-eco-green tracking-wide">RELEAF</span>
           </Link>
           <ul className="hidden md:flex justify-center items-center space-x-6 text-base font-medium text-eco-green">
@@ -331,7 +337,7 @@ const Landing = () => {
                     <GifPlaceholder 
                       icon={ClipboardCheck} 
                       title="Upload items to recycle properly"
-                      gifSrc="/productpagegifs/clip1.svg"
+                      gifSrc="/clip1.svg"
                     >
                       Scan questionable items for proper recycling guidance
                     </GifPlaceholder>
@@ -340,7 +346,7 @@ const Landing = () => {
                     <GifPlaceholder 
                       icon={Camera} 
                       title="AI analyzes your items in real-time"
-                      gifSrc="/productpagegifs/clip2.svg"
+                      gifSrc="/clip2.svg"
                     >
                       Watch as our AI determines recyclability and materials
                     </GifPlaceholder>
@@ -349,7 +355,7 @@ const Landing = () => {
                     <GifPlaceholder 
                       icon={Info} 
                       title="Track your environmental impact"
-                      gifSrc="/productpagegifs/clip3.svg"
+                      gifSrc="/clip3.svg"
                     >
                       View your history and build streaks to save the planet
                     </GifPlaceholder>
@@ -391,7 +397,12 @@ const Landing = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 * index }}
                 className="text-center p-6 border rounded-xl shadow-sm bg-[#F8FFF8]">
-                <img src={member.photo} alt={member.name} className="h-24 w-24 mx-auto mb-4 rounded-full object-cover" />
+                <ImageWithFallback 
+                  src={member.photo} 
+                  alt={member.name} 
+                  className="h-24 w-24 mx-auto mb-4 rounded-full object-cover" 
+                  fallbackSrc="/placeholder.svg"
+                />
                 <h3 className="font-semibold mb-1">{member.name}</h3>
                 <p className="text-sm text-muted-foreground mb-2">{member.role}</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">{member.bio}</p>

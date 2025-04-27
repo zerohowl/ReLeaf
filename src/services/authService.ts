@@ -1,4 +1,4 @@
-// Authentication service to replace Supabase
+// Authentication service
 // Handles login, registration, token storage and auth state management
 
 import { isTokenExpired } from './tokenUtils';

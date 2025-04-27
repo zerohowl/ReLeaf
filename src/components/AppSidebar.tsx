@@ -23,9 +23,9 @@ import {
 } from "lucide-react";
 
 import { Link, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSidebar } from "@/components/ui/sidebar";
+import { logout } from '@/services/authService';
 
 export function AppSidebar() {
   const navigate = useNavigate();
@@ -68,17 +68,12 @@ export function AppSidebar() {
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) throw error;
-      
+      await logout();
       toast({
         title: "Logged out",
         description: "You have been successfully logged out"
       });
-      
       localStorage.removeItem('user');
-      
       setTimeout(() => {
         navigate("/login", { replace: true });
       }, 100);

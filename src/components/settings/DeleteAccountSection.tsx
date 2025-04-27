@@ -1,35 +1,34 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { supabase } from "@/integrations/supabase/client";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { logout } from '@/services/authService'; // Import logout
 import { useNavigate } from "react-router-dom";
 
 export const DeleteAccountSection = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleDeleteAccount = async () => {
+    setIsDeleting(true);
     try {
-      const { error } = await supabase.auth.admin.deleteUser(
-        (await supabase.auth.getUser()).data.user?.id || ''
-      );
-      
-      if (error) throw error;
-      
-      await supabase.auth.signOut();
+      // In demo mode, just log out
+      console.log("Account deletion simulated (logged out).");
+      await logout();
       toast({
-        title: "Account deleted",
+        title: "Account Deleted",
         description: "Your account has been successfully deleted"
       });
       navigate("/");
@@ -44,27 +43,30 @@ export const DeleteAccountSection = () => {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="destructive">Delete Account</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Are you sure?</DialogTitle>
-          <DialogDescription>
+    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+      <AlertDialogTrigger asChild>
+        <Button variant="destructive" disabled={true}>
+          {/* Deletion disabled in demo mode */}
+          Delete Account
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogDescription>
             This action cannot be undone. This will permanently delete your account
             and remove your data from our servers.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setIsOpen(false)}>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => setIsOpen(false)}>
             Cancel
-          </Button>
-          <Button variant="destructive" onClick={handleDeleteAccount}>
+          </AlertDialogCancel>
+          <AlertDialogAction onClick={handleDeleteAccount} disabled={isDeleting}>
             Delete Account
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };

@@ -1,8 +1,6 @@
-
 import { useEffect } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -21,33 +19,13 @@ export const AppearanceSection = ({ initialValue = 'light' }: { initialValue?: '
     // First set theme locally
     setTheme(value);
     
-    try {
-      // Then attempt to save to user settings if logged in
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        // User is logged in, update their settings in the database
-        const { error } = await supabase
-          .from('user_settings')
-          .update({ theme: value })
-          .eq('user_id', user.id);
-
-        if (error) throw error;
-        
-        toast({
-          title: "Theme updated",
-          description: `Theme set to ${value}`
-        });
-      } else {
-        // Just show a toast notification without the error
-        toast({
-          title: "Theme updated",
-          description: `Theme set to ${value} (local only)`
-        });
-      }
-    } catch (error) {
-      console.error("Theme update error:", error);
-    }
+    // TODO: Implement theme persistence using localStorage or a future API
+    console.log(`Theme changed to ${value}, persistence mechanism needed.`);
+    
+    toast({
+      title: "Theme updated",
+      description: `Theme set to ${value}`
+    });
   };
 
   return (

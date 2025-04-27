@@ -3,6 +3,22 @@
 
 import { isTokenExpired } from './tokenUtils';
 
+// Get API URL from environment variable or use a fallback for production
+const API_URL = import.meta.env.VITE_API_URL || 'https://api.releaf-recycling.com';
+
+// For demo purposes: enable mock auth when running on Pages
+const IS_DEMO = window.location.hostname.includes('pages.dev') || 
+               window.location.hostname.includes('re-leaf.xyz');
+
+// Mock user for demo purposes
+const MOCK_USER = {
+  id: 1,
+  email: 'demo@releaf.com'
+};
+
+// Mock token
+const MOCK_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6IkRlbW8gVXNlciIsImlhdCI6MTcxNDI5NDgwMCwiZXhwIjoxNzQ1ODMwODAwfQ.mock-signature';
+
 // Token storage keys
 const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
@@ -32,7 +48,15 @@ export interface RegisterCredentials extends LoginCredentials {
  * Register a new user
  */
 export const register = async (credentials: RegisterCredentials): Promise<User> => {
-  const response = await fetch('/api/register', {
+  // For demo mode, use mock authentication
+  if (IS_DEMO) {
+    console.log('Using mock authentication for demo');
+    localStorage.setItem(TOKEN_KEY, MOCK_TOKEN);
+    localStorage.setItem(USER_KEY, JSON.stringify(MOCK_USER));
+    return Promise.resolve(MOCK_USER);
+  }
+
+  const response = await fetch(`${API_URL}/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(credentials)
@@ -53,7 +77,20 @@ export const register = async (credentials: RegisterCredentials): Promise<User> 
  */
 export const login = async (credentials: LoginCredentials): Promise<User> => {
   try {
-    const response = await fetch('/api/login', {
+    // For demo mode (Cloudflare Pages), use mock authentication
+    if (IS_DEMO) {
+      console.log('Using mock authentication for demo');
+      // Check if using test credentials
+      if (credentials.email === 'user@example.com' && credentials.password === 'password123') {
+        localStorage.setItem(TOKEN_KEY, MOCK_TOKEN);
+        localStorage.setItem(USER_KEY, JSON.stringify(MOCK_USER));
+        return Promise.resolve(MOCK_USER);
+      } else {
+        throw new Error('Invalid email or password. For demo, use user@example.com / password123');
+      }
+    }
+
+    const response = await fetch(`${API_URL}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(credentials)
@@ -107,8 +144,13 @@ export const getUserProfile = async (): Promise<User> => {
   if (!token) {
     throw new Error('No authentication token found');
   }
+
+  // For demo mode, return the mock user
+  if (IS_DEMO) {
+    return Promise.resolve(MOCK_USER);
+  }
   
-  const response = await fetch('/api/profile', {
+  const response = await fetch(`${API_URL}/profile`, {
     headers: { 
       'Authorization': `Bearer ${token}` 
     }

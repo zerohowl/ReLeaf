@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { isAuthenticated as isAuth } from '@/services/authService';
 import AppLayout from '@/components/AppLayout';
 import StatCard from '@/components/dashboard/StatCard';
 import StreakCard from '@/components/dashboard/StreakCard';
@@ -55,26 +55,12 @@ const Dashboard = () => {
   ];
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      const localUser = localStorage.getItem('user');
-      const isAuth = !!data.session || !!localUser;
-      setIsAuthenticated(isAuth);
-
-      if (isAuth && !localStorage.getItem('onboarding_completed')) {
-        setShowOnboarding(true);
-      }
-      setAuthLoading(false);
-    };
-
-    checkAuth();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
-      const localUser = localStorage.getItem('user');
-      setIsAuthenticated(!!session || !!localUser);
-      setAuthLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    const auth = isAuth();
+    setIsAuthenticated(auth);
+    if (auth && !localStorage.getItem('onboarding_completed')) {
+      setShowOnboarding(true);
+    }
+    setAuthLoading(false);
   }, []);
 
   const handleOnboardingComplete = () => {
@@ -103,9 +89,9 @@ const Dashboard = () => {
     <PageTransition>
       <BackgroundImage>
         <AppLayout>
-          <div className="mb-8 space-y-4 bg-white/70 backdrop-blur-sm p-4 rounded-lg">
-            <h1 className="text-4xl font-bold mb-2 text-gradient">Welcome back!</h1>
-            <p className="text-muted-foreground text-lg">
+          <div className="mb-8 space-y-4 bg-white/70 dark:bg-black/50 backdrop-blur-sm p-4 rounded-lg">
+            <h1 className="text-4xl font-bold mb-2 text-gradient dark:text-white">Welcome back!</h1>
+            <p className="text-muted-foreground dark:text-gray-200 text-lg">
               Track your recycling progress and make a positive impact on the environment.
             </p>
           </div>
@@ -136,8 +122,8 @@ const Dashboard = () => {
 
       <div className="flex justify-center my-10">
         <Link to="/upload">
-          <Button className="glass-panel px-10 py-7 text-lg font-semibold bg-eco-green/20 border-2 border-eco-green/30 shadow-lg shadow-eco-green/20 hover:bg-eco-green/30 hover:border-eco-green/50 hover:shadow-eco-green/30 transition-all hover:scale-105 animate-pulse-slow">
-            <Upload className="h-6 w-6 mr-3" />
+          <Button className="glass-panel px-10 py-7 text-lg font-semibold bg-eco-green/20 border-2 border-eco-green/30 shadow-lg shadow-eco-green/20 hover:bg-eco-green/30 hover:border-eco-green/50 hover:shadow-eco-green/30 transition-all hover:scale-105 animate-pulse-slow text-black dark:text-white dark:bg-eco-green/40 dark:border-eco-green/60">
+            <Upload className="h-6 w-6 mr-3 text-black dark:text-white" />
             Scan New Item
           </Button>
         </Link>

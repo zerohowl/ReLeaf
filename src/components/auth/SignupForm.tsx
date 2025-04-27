@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { register } from '@/services/authService';
 
 const SignupForm = () => {
   const [name, setName] = useState('');
@@ -18,22 +19,29 @@ const SignupForm = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Mock signup - In a real app, this would call your authentication API
-    setTimeout(() => {
-      // Simulate successful signup
-      localStorage.setItem('user', JSON.stringify({ email, name }));
+    try {
+      // Register the user with our backend service
+      await register({ email, password, name });
       
       // Clear any existing onboarding flag to ensure the modal appears for new user
       localStorage.removeItem('onboarding_completed');
       
-      setIsLoading(false);
       toast({
         title: "Account created!",
         description: "Welcome to Releaf.",
       });
       
       navigate('/dashboard');
-    }, 1000);
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      toast({
+        variant: "destructive",
+        title: "Registration failed",
+        description: error.message || "Could not create account. Please try again."
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

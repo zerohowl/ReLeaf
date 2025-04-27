@@ -23,6 +23,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     root.classList.remove("light", "dark");
     root.classList.add(theme);
     
+    // Special handling for landing page to preserve colors
+    const isLandingPage = window.location.pathname === '/' || window.location.pathname === '/landing';
+    if (isLandingPage) {
+      // Add special class to preserve landing page colors
+      root.classList.add('landing-page');
+    } else {
+      root.classList.remove('landing-page');
+    }
+    
     // Save theme to localStorage
     localStorage.setItem("theme", theme);
   }, [theme]);

@@ -1,8 +1,8 @@
-import 'dotenv/config';
-import express from 'express';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
+require('dotenv').config();
+const express = require('express');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 const app = express();
@@ -11,7 +11,7 @@ app.use(express.json());
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_change_me';
 
 // ---------- Register ----------
-app.post('/api/register', async (req, res) => {
+app.post('/api/register', async (req: any, res: any) => {
   const { email, password } = req.body as { email?: string; password?: string };
   if (!email || !password) return res.status(400).send('Missing fields');
 
@@ -27,7 +27,7 @@ app.post('/api/register', async (req, res) => {
 });
 
 // ---------- Login ----------
-app.post('/api/login', async (req, res) => {
+app.post('/api/login', async (req: any, res: any) => {
   const { email, password } = req.body as { email?: string; password?: string };
   if (!email || !password) return res.status(400).send('Missing fields');
 
@@ -42,7 +42,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 // ---------- Auth middleware ----------
-function auth(req: express.Request, res: express.Response, next: express.NextFunction) {
+function auth(req: any, res: any, next: any) {
   const header = req.headers.authorization;
   const token = header?.split(' ')[1];
   if (!token) return res.status(401).send('No token');
@@ -55,7 +55,7 @@ function auth(req: express.Request, res: express.Response, next: express.NextFun
   }
 }
 
-app.get('/api/profile', auth, async (req, res) => {
+app.get('/api/profile', auth, async (req: any, res: any) => {
   const userId = (req as any).userId as number;
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, createdAt: true } });
   return res.send(user);

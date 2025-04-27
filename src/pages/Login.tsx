@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
-import AuthCard from '@/components/auth/AuthCard'; // Use AuthCard for both
+import AuthCard from '@/components/auth/AuthCard';
 import LoginForm from '@/components/auth/LoginForm';
-import { supabase } from '@/integrations/supabase/client';
+import { isAuthenticated as isAuth } from '@/services/authService';
 import BackgroundImage from '@/components/BackgroundImage';
 
 const Login = () => {
@@ -12,29 +12,10 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check authentication status using Supabase
-    const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      setIsAuthenticated(!!data.session);
-      setIsLoading(false);
-    };
-
-    checkAuth();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setIsAuthenticated(!!session);
-      }
-    );
-
-    return () => subscription.unsubscribe();
+    const auth = isAuth();
+    setIsAuthenticated(auth);
+    setIsLoading(false);
   }, []);
-
-
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" />;
-  }
 
   return (
     <BackgroundImage>
@@ -65,6 +46,11 @@ const Login = () => {
           }
         >
           <LoginForm />
+          {isAuthenticated && (
+            <div className="text-center mt-4 text-sm text-muted-foreground">
+              Already logged in. <Link to="/dashboard" className="text-primary hover:underline font-medium">Go to dashboard</Link>
+            </div>
+          )}
         </AuthCard>
 
 

@@ -1,7 +1,7 @@
 {
   "name": "releaf-backend",
   "version": "1.0.0",
-  "type": "module",
+  "type": "commonjs",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn src/index.ts",
@@ -13,6 +13,7 @@
   "dependencies": {
     "@prisma/client": "^5.9.0",
     "bcrypt": "^5.1.1",
+    "better-sqlite3": "^11.9.1",
     "dotenv": "^16.4.1",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.1"

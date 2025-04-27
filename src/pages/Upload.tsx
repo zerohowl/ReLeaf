@@ -8,6 +8,7 @@ import VideoUpload from '@/components/upload/VideoUpload';
 import TextItemIdentifier from '@/components/upload/TextItemIdentifier';
 import PageTransition from '@/components/PageTransition';
 import BackgroundImage from '@/components/BackgroundImage';
+import { isAuthenticated as isAuth } from '@/services/authService';
 
 const Upload = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -16,29 +17,16 @@ const Upload = () => {
   const [hasGeminiKey, setHasGeminiKey] = useState(false);
 
   useEffect(() => {
-    // Check authentication status via Supabase session
-    const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      const localUser = localStorage.getItem('user');
-      setIsAuthenticated(!!data.session || !!localUser);
-      setIsLoading(false);
-    };
+    const auth = isAuth();
+    setIsAuthenticated(auth);
+    setIsLoading(false);
+  }, []);
 
-    checkAuth();
-
-    // Listen for auth changes in case session updated elsewhere
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      const localUser = localStorage.getItem('user');
-      setIsAuthenticated(!!session || !!localUser);
-      setIsLoading(false);
-    });
-
+  useEffect(() => {
     // Check Gemini API key for feature flag
     const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
     setHasGeminiKey(!!geminiKey);
     console.log('Upload component: Gemini API Key present:', !!geminiKey);
-
-    return () => subscription.unsubscribe();
   }, []);
 
   if (isLoading) {
@@ -57,9 +45,9 @@ const Upload = () => {
     <PageTransition>
       <BackgroundImage>
         <AppLayout>
-      <div className="mb-6 bg-white/70 backdrop-blur-sm p-4 rounded-lg">
-        <h1 className="text-3xl font-bold mb-2">Upload & Scan</h1>
-        <p className="text-muted-foreground">
+      <div className="mb-6 bg-white/70 dark:bg-black/50 backdrop-blur-sm p-4 rounded-lg">
+        <h1 className="text-3xl font-bold mb-2 dark:text-white">Upload & Scan</h1>
+        <p className="text-muted-foreground dark:text-gray-200">
           Upload an item to check its recyclability or record your recycling action.
         </p>
         {!hasGeminiKey && (

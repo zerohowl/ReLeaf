@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import PageTransition from '@/components/PageTransition';
 import BackgroundImage from '@/components/BackgroundImage';
-import { supabase } from '@/integrations/supabase/client';
+import { isAuthenticated as isAuth } from '@/services/authService';
 
 const History = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -68,13 +68,9 @@ const History = () => {
   const nonRecyclableItems = mockHistoryItems.filter(item => !item.isRecyclable);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      const localUser = localStorage.getItem('user');
-      setIsAuthenticated(!!data.session || !!localUser);
-      setIsLoading(false);
-    };
-    checkAuth();
+    const auth = isAuth();
+    setIsAuthenticated(auth);
+    setIsLoading(false);
   }, []);
 
   if (isLoading) {

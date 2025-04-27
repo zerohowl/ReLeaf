@@ -344,10 +344,10 @@ const Landing = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { name: 'Sean E.', role: 'Frontend Developer', bio: 'Creates beautiful, responsive interfaces that bring the Releaf experience to life.' },
-              { name: 'Kevin H.', role: 'Backend Developer', bio: 'Architect of Releaf\'s server infrastructure and data pipelines.' },
-              { name: 'Enzo P.', role: 'Graphic Designer', bio: 'Crafts the visual identity of Releaf with an eye for sustainability-inspired aesthetics.' },
-              { name: 'Turat Z.', role: 'Creative Director', bio: 'Guides the vision and storytelling behind Releaf.' }
+              { name: 'Sean E.', role: 'Frontend Developer', photo: '/teamphotos/sean.png', bio: 'Creates beautiful, responsive interfaces that bring the Releaf experience to life.' },
+              { name: 'Kevin H.', role: 'Backend Developer', photo: '/teamphotos/kevin.png', bio: 'Architect of Releaf\'s server infrastructure and data pipelines.' },
+              { name: 'Enzo P.', role: 'Graphic Designer', photo: '/teamphotos/enzo.png', bio: 'Crafts the visual identity of Releaf with an eye for sustainability-inspired aesthetics.' },
+              { name: 'Turat Z.', role: 'Creative Director', photo: '/teamphotos/turat.png', bio: 'Guides the vision and storytelling behind Releaf.' }
             ].map((member, index) => (
               <motion.div 
                 key={member.name}
@@ -355,9 +355,7 @@ const Landing = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 * index }}
                 className="text-center p-6 border rounded-xl shadow-sm bg-[#F8FFF8]">
-                <div className="h-20 w-20 mx-auto mb-4 rounded-full bg-eco-green/10 flex items-center justify-center text-eco-green font-bold">
-                  {member.name.split(' ').map((n) => n[0]).join('')}
-                </div>
+                <img src={member.photo} alt={member.name} className="h-24 w-24 mx-auto mb-4 rounded-full object-cover" />
                 <h3 className="font-semibold mb-1">{member.name}</h3>
                 <p className="text-sm text-muted-foreground mb-2">{member.role}</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">{member.bio}</p>

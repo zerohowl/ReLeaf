@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
-import About from "./pages/About";
+// About page contents now integrated into Landing page
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Upload from "./pages/Upload";
@@ -15,8 +15,7 @@ import Leaderboard from "./pages/Leaderboard";
 import Streaks from "./pages/Streaks";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
-// Temporarily disabled due to React hook context issues
-// import ChatAssistant from "./components/assistant/ChatAssistant";
+import ChatAssistant from "./components/assistant/ChatAssistant";
 import { AnimatePresence } from "framer-motion";
 
 const queryClient = new QueryClient();
@@ -35,7 +34,7 @@ const AnimatedRoutes = () => {
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/streaks" element={<Streaks />} />
         <Route path="/settings" element={<Settings />} />
-        <Route path="/about" element={<About />} />
+        {/* About page content integrated into Landing page section */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
@@ -50,8 +49,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AnimatedRoutes />
-          {/* ChatAssistant temporarily disabled due to React hook issues */}
-          {/* <ChatAssistant /> */}
+          {/* ChatAssistant moved to Landing page only */}
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>

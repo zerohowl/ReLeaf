@@ -37,7 +37,7 @@ export function AppSidebar() {
     {
       title: "Dashboard",
       icon: Home,
-      path: "/"
+      path: "/dashboard"
     },
     {
       title: "Upload Item",
@@ -95,16 +95,14 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <div className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-2">
-          
-        <img
+        <Link to="/" className="flex items-center gap-2 transition-colors hover:text-eco-green">
+          <img
             src="/newLogo.png"        
             alt="Releaf Logo"  
             className="h-10 w-auto"  
           />
-
           <span className="font-bold text-sidebar-foreground">Releaf</span>
-        </div>
+        </Link>
         <SidebarTrigger 
           className={`
             ${state === 'collapsed' ? 'bg-eco-green text-white' : ''} 

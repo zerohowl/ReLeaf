@@ -6,6 +6,7 @@ import StatCard from '@/components/dashboard/StatCard';
 import StreakCard from '@/components/dashboard/StreakCard';
 import LeaderboardCard from '@/components/dashboard/LeaderboardCard';
 import RecentScansCard from '@/components/dashboard/RecentScansCard';
+import ScoreBreakdownCard from '@/components/dashboard/ScoreBreakdownCard';
 import { Award, Calendar, Leaf, Recycle, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -19,16 +20,16 @@ const Dashboard = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   const stats = {
-    itemsScanned: 0,
-    recyclableItems: 0,
-    currentStreak: 0,
-    totalPoints: 0,
+    itemsScanned: 54,
+    recyclableItems: 42,
+    currentStreak: 5,
+    totalPoints: 875,
   };
 
   const streakData = {
-    currentStreak: 0,
-    longestStreak: 0,
-    streakDays: [],
+    currentStreak: 5,
+    longestStreak: 9,
+    streakDays: [0, 1, 2, 3, 4, 5, 6], // Days of the week with streak activity
   };
 
   const leaderboardUsers = [
@@ -39,7 +40,19 @@ const Dashboard = () => {
     { name: 'Mike Peterson', score: 780, rank: 5 },
   ];
 
-  const recentScans = [];
+  // Sample score breakdown categories
+  const scoreCategories = [
+    { name: 'Daily Streaks', points: 275, percentage: 31, color: 'bg-green-400' },
+    { name: 'Verified Uploads', points: 350, percentage: 40, color: 'bg-blue-400' },
+    { name: 'Hard-to-Recycle Items', points: 175, percentage: 20, color: 'bg-purple-400' },
+    { name: 'Community Bonus', points: 75, percentage: 9, color: 'bg-amber-400' },
+  ];
+
+  const recentScans = [
+    { id: '1', name: 'Plastic Bottle', isRecyclable: true, date: '2025-04-25', imageUrl: '/items/plastic-bottle.jpg' },
+    { id: '2', name: 'Glass Jar', isRecyclable: true, date: '2025-04-24', imageUrl: '/items/glass-jar.jpg' },
+    { id: '3', name: 'Styrofoam Container', isRecyclable: false, date: '2025-04-23', imageUrl: '/items/styrofoam.jpg' },
+  ];
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -130,14 +143,29 @@ const Dashboard = () => {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <StreakCard 
-          currentStreak={streakData.currentStreak}
-          longestStreak={streakData.longestStreak}
-          streakDays={streakData.streakDays}
-        />
-        <LeaderboardCard users={leaderboardUsers} />
-        <RecentScansCard items={recentScans} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-4">
+          <StreakCard 
+            currentStreak={streakData.currentStreak}
+            longestStreak={streakData.longestStreak}
+            streakDays={streakData.streakDays}
+          />
+        </div>
+        
+        <div className="lg:col-span-4">
+          <ScoreBreakdownCard 
+            totalScore={stats.totalPoints}
+            categories={scoreCategories}
+          />
+        </div>
+        
+        <div className="lg:col-span-4">
+          <LeaderboardCard users={leaderboardUsers} />
+        </div>
+        
+        <div className="lg:col-span-12">
+          <RecentScansCard items={recentScans} />
+        </div>
       </div>
       
       {showOnboarding && (

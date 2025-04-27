@@ -4,6 +4,7 @@ import BackgroundImage from '@/components/BackgroundImage';
 import { Zap, Camera, MessageCircle, Video, Trophy, Leaf } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
+import ChatAssistant from '@/components/assistant/ChatAssistant';
 
 const FeatureCard = ({ icon: Icon, title, children, index }: { icon: LucideIcon; title: string; children: string; index: number }) => (
   <motion.div 
@@ -22,6 +23,8 @@ const FeatureCard = ({ icon: Icon, title, children, index }: { icon: LucideIcon;
 
 const Landing = () => (
   <BackgroundImage>
+    {/* Chat Assistant - only on landing page */}
+    <ChatAssistant />
     <div className="min-h-screen flex flex-col items-center py-12 px-4">
       {/* Central card */}
       <motion.div 
@@ -45,7 +48,7 @@ const Landing = () => (
             <li><a href="#features" className="hover:text-eco-green/80 transition-colors">Features</a></li>
             <li><a href="#how-it-works" className="hover:text-eco-green/80 transition-colors">How It Works</a></li>
             <li><a href="#impact" className="hover:text-eco-green/80 transition-colors">Impact</a></li>
-            <li><Link to="/about" className="hover:text-eco-green/80 transition-colors">About the Team</Link></li>
+            <li><a href="#team" className="hover:text-eco-green/80 transition-colors">About the Team</a></li>
             <li><a href="#faq" className="hover:text-eco-green/80 transition-colors">FAQ</a></li>
           </ul>
           <Link to="/login">
@@ -191,6 +194,40 @@ const Landing = () => (
           </div>
         </section>
         
+        {/* Team Section */}
+        <section id="team" className="mb-28 scroll-mt-20">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-3xl font-bold text-center mb-12">
+            Meet the Releaf Team
+          </motion.h2>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              { name: 'Sean E.', role: 'Frontend Developer', bio: 'Creates beautiful, responsive interfaces that bring the Releaf experience to life.' },
+              { name: 'Kevin H.', role: 'Backend Developer', bio: 'Architect of Releaf\'s server infrastructure and data pipelines.' },
+              { name: 'Enzo P.', role: 'Graphic Designer', bio: 'Crafts the visual identity of Releaf with an eye for sustainability-inspired aesthetics.' },
+              { name: 'Turat Z.', role: 'Creative Director', bio: 'Guides the vision and storytelling behind Releaf.' }
+            ].map((member, index) => (
+              <motion.div 
+                key={member.name}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 * index }}
+                className="text-center p-6 border rounded-xl shadow-sm bg-[#F8FFF8]">
+                <div className="h-20 w-20 mx-auto mb-4 rounded-full bg-eco-green/10 flex items-center justify-center text-eco-green font-bold">
+                  {member.name.split(' ').map((n) => n[0]).join('')}
+                </div>
+                <h3 className="font-semibold mb-1">{member.name}</h3>
+                <p className="text-sm text-muted-foreground mb-2">{member.role}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">{member.bio}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
         {/* FAQ Section */}
         <section id="faq" className="mb-28 scroll-mt-20">
           <motion.h2 
@@ -233,7 +270,7 @@ const Landing = () => (
             <a href="#features" className="hover:text-eco-green/80 transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-eco-green/80 transition-colors">How It Works</a>
             <a href="#impact" className="hover:text-eco-green/80 transition-colors">Impact</a>
-            <Link to="/about" className="hover:text-eco-green/80 transition-colors">About the Team</Link>
+            <a href="#team" className="hover:text-eco-green/80 transition-colors">About the Team</a>
             <a href="#faq" className="hover:text-eco-green/80 transition-colors">FAQ</a>
           </div>
           

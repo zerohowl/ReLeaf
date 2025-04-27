@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft } from 'lucide-react';
 import AuthCard from '@/components/auth/AuthCard'; // Use AuthCard for both
 import LoginForm from '@/components/auth/LoginForm';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,6 +38,15 @@ const Login = () => {
 
   return (
     <BackgroundImage>
+      {/* Back button */}
+      <div className="absolute top-4 left-4 z-10">
+        <Link to="/">
+          <Button variant="outline" size="sm" className="gap-1">
+            <ChevronLeft className="h-4 w-4" /> Back
+          </Button>
+        </Link>
+      </div>
+      
       {/* Main container */}
       <div className="min-h-screen flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-eco-green/10 to-eco-blue/10">
 

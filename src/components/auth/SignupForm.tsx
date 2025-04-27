@@ -32,7 +32,7 @@ const SignupForm = () => {
         description: "Welcome to Releaf.",
       });
       
-      navigate('/');
+      navigate('/dashboard');
     }, 1000);
   };
 

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft } from 'lucide-react';
 import AuthCard from '@/components/auth/AuthCard';
 import SignupForm from '@/components/auth/SignupForm';
 import PageTransition from '@/components/PageTransition';
@@ -26,6 +28,15 @@ const Signup = () => {
   return (
     <PageTransition>
       <BackgroundImage>
+        {/* Back button */}
+        <div className="absolute top-4 left-4 z-10">
+          <Link to="/">
+            <Button variant="outline" size="sm" className="gap-1">
+              <ChevronLeft className="h-4 w-4" /> Back
+            </Button>
+          </Link>
+        </div>
+
         <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
           <AuthCard
             title="Join Releaf"

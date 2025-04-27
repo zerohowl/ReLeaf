@@ -1,16 +1,17 @@
 import BackgroundImage from '@/components/BackgroundImage';
 
 const team = [
-  { name: 'Sean E.', role: 'Full-Stack Developer', bio: 'Passionate about building sustainable technology.' },
-  { name: 'Alex K.', role: 'AI Engineer', bio: 'Loves fine-tuning models for real-world impact.' },
-  { name: 'Taylor S.', role: 'Product Designer', bio: 'Designs intuitive experiences with an eco flair.' },
+  { name: 'Sean E.', role: 'Frontend Developer', bio: 'Creates beautiful, responsive interfaces that bring the Releaf experience to life. Passionate about creating intuitive user experiences with modern web technologies.' },
+  { name: 'Kevin H.', role: 'Backend Developer', bio: 'Architect of Releaf\'s server infrastructure and data pipelines. Specializes in building robust, scalable systems that power our AI-driven recycling platform.' },
+  { name: 'Enzo P.', role: 'Graphic Designer', bio: 'Crafts the visual identity of Releaf with an eye for sustainability-inspired aesthetics. Transforms complex environmental concepts into clear, compelling visuals.' },
+  { name: 'Turat Z.', role: 'Creative Director', bio: 'Guides the vision and storytelling behind Releaf. Blends environmental passion with innovative thinking to shape our brand\'s unique voice and mission.' },
 ];
 
 const About = () => (
   <BackgroundImage>
     <div className="min-h-screen flex flex-col items-center py-12 px-4">
       <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl p-8 md:p-12">
-        <h1 className="text-3xl font-bold mb-8 text-center text-eco-green">Meet the Team</h1>
+        <h1 className="text-3xl font-bold mb-8 text-center text-eco-green">Meet the Releaf Team</h1>
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
           {team.map((member) => (
             <div key={member.name} className="text-center p-4 border rounded-xl shadow-sm bg-[#F8FFF8]">

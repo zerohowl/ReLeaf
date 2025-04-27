@@ -17,7 +17,7 @@ const Signup = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      setTimeout(() => navigate('/', { replace: true }), 250);
+      setTimeout(() => navigate('/dashboard', { replace: true }), 250);
     }
   }, [isAuthenticated]);
 

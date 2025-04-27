@@ -3,98 +3,245 @@ import { Button } from '@/components/ui/button';
 import BackgroundImage from '@/components/BackgroundImage';
 import { Zap, Camera, MessageCircle, Video, Trophy, Leaf } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-const FeatureCard = ({ icon: Icon, title, children }: { icon: LucideIcon; title: string; children: string }) => (
-  <div className="flex flex-col items-center text-center p-6 bg-[#F3FFF3] rounded-xl border border-muted/30 shadow-sm">
-    <div className="mb-4 p-3 rounded-lg bg-eco-green/10 text-eco-green">
-      <Icon className="h-8 w-8" />
+const FeatureCard = ({ icon: Icon, title, children, index }: { icon: LucideIcon; title: string; children: string; index: number }) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 50 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5, delay: 0.2 + (index * 0.1) }}
+    className="flex flex-col items-center text-center p-8 bg-[#F3FFF3] rounded-xl border border-muted/30 shadow-md hover:shadow-lg transition-all hover:-translate-y-1"
+  >
+    <div className="mb-6 p-4 rounded-lg bg-eco-green/10 text-eco-green">
+      <Icon className="h-10 w-10" />
     </div>
-    <h3 className="font-semibold mb-2 text-lg">{title}</h3>
-    <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">{children}</p>
-  </div>
+    <h3 className="font-semibold mb-3 text-xl">{title}</h3>
+    <p className="text-muted-foreground leading-relaxed max-w-xs">{children}</p>
+  </motion.div>
 );
 
 const Landing = () => (
   <BackgroundImage>
-    <div className="min-h-screen flex flex-col items-center py-6 px-4">
+    <div className="min-h-screen flex flex-col items-center py-12 px-4">
       {/* Central card */}
-      <div className="w-full max-w-6xl bg-white rounded-2xl shadow-xl p-8 md:p-12 relative">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="w-full max-w-6xl bg-white rounded-3xl shadow-2xl p-8 md:p-16 relative">
+
         {/* Top nav */}
-        <nav className="flex items-center justify-between mb-10">
+        <motion.nav 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="flex items-center justify-between mb-20">
           {/* Logo + wordmark */}
-          <Link to="/" className="flex items-center gap-2">
-            <img src="/newLogo.png" alt="Re-Leaf logo" className="h-8 w-8" />
-            <span className="font-extrabold text-xl text-eco-green tracking-wide">RE-LEAF</span>
+          <Link to="/" className="flex items-center gap-3">
+            <img src="/newLogo.png" alt="Releaf logo" className="h-10 w-10" />
+            <span className="font-extrabold text-2xl text-eco-green tracking-wide">RELEAF</span>
           </Link>
-          <ul className="hidden md:flex gap-6 text-sm font-medium text-eco-green">
-            <li><a href="#features" className="hover:text-eco-green/80">Features</a></li>
-            <li><a href="#how-it-works" className="hover:text-eco-green/80">How It Works</a></li>
-            <li><a href="#impact" className="hover:text-eco-green/80">Impact</a></li>
-            <li><Link to="/about" className="hover:text-eco-green/80">About the Team</Link></li>
-            <li><a href="#faq" className="hover:text-eco-green/80">FAQ</a></li>
+          <ul className="hidden md:flex gap-8 text-base font-medium text-eco-green">
+            <li><a href="#features" className="hover:text-eco-green/80 transition-colors">Features</a></li>
+            <li><a href="#how-it-works" className="hover:text-eco-green/80 transition-colors">How It Works</a></li>
+            <li><a href="#impact" className="hover:text-eco-green/80 transition-colors">Impact</a></li>
+            <li><Link to="/about" className="hover:text-eco-green/80 transition-colors">About the Team</Link></li>
+            <li><a href="#faq" className="hover:text-eco-green/80 transition-colors">FAQ</a></li>
           </ul>
           <Link to="/login">
-            <Button className="px-6">Get Started</Button>
+            <Button className="px-8 py-6 text-base rounded-xl transition-all hover:scale-105">Get Started</Button>
           </Link>
-        </nav>
+        </motion.nav>
 
         {/* Hero */}
-        <section className="text-center mb-16" id="hero">
-          <h1 className="text-3xl md:text-5xl font-bold mb-4">Snap · Sort · Save the Planet</h1>
-          <p className="text-muted-foreground text-lg mb-8">AI-powered recycling guidance. <span className="font-semibold">100% free.</span></p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-            <Link to="/login"><Button className="px-8 py-6">Get Started</Button></Link>
-            <a href="#how-it-works"><Button variant="outline" className="px-8 py-6">See How It Works</Button></a>
-          </div>
-          <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-            <Zap className="h-3 w-3" /> Powered by <span className="font-semibold ml-1">Google Gemini Flash 2.0</span>
-          </div>
+        <section className="text-center mb-28" id="hero">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-4xl md:text-6xl font-bold mb-6 tracking-tight leading-tight"
+          >
+            Snap · Sort · Save the Planet
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="text-muted-foreground text-xl mb-12">
+            AI-powered recycling guidance. <span className="font-semibold">100% free.</span>
+          </motion.p>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="flex flex-col sm:flex-row gap-5 justify-center mb-10">
+            <Link to="/login">
+              <Button className="px-10 py-7 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105">
+                Get Started
+              </Button>
+            </Link>
+            <a href="#how-it-works">
+              <Button variant="outline" className="px-10 py-7 text-lg rounded-xl transition-all hover:scale-105">
+                See How It Works
+              </Button>
+            </a>
+          </motion.div>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="text-sm text-muted-foreground flex items-center justify-center gap-2 mt-8">
+            <Zap className="h-4 w-4" /> Powered by <span className="font-semibold ml-1">Google Gemini Flash 2.0</span>
+          </motion.div>
         </section>
 
         {/* Features */}
-        <section id="features" className="mb-16">
-          <h2 className="text-2xl font-bold text-center mb-8">Features</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <FeatureCard icon={Camera} title="Snap & Sort AI">Instantly identify recyclables with a photo.</FeatureCard>
-            <FeatureCard icon={MessageCircle} title="Describe an Item">Get an answer by typing in a description.</FeatureCard>
-            <FeatureCard icon={Video} title="Verify Disposal">Check if you’re using the right-bin video.</FeatureCard>
-            <FeatureCard icon={Trophy} title="Gamified Habits">Boost your recycling with fun challenges.</FeatureCard>
+        <section id="features" className="mb-28 scroll-mt-20">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-3xl font-bold text-center mb-12">
+            Features
+          </motion.h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <FeatureCard index={0} icon={Camera} title="Snap & Sort AI">Instantly identify recyclables with a photo.</FeatureCard>
+            <FeatureCard index={1} icon={MessageCircle} title="Describe an Item">Get an answer by typing in a description.</FeatureCard>
+            <FeatureCard index={2} icon={Video} title="Verify Disposal">Check if you're using the right-bin video.</FeatureCard>
+            <FeatureCard index={3} icon={Trophy} title="Gamified Habits">Boost your recycling with fun challenges.</FeatureCard>
           </div>
         </section>
 
         {/* Proof / Impact */}
-        <section id="impact" className="mb-16 grid md:grid-cols-2 gap-8">
-          <div className="flex items-center p-6 bg-gradient-to-r from-eco-green/10 to-eco-green/5 rounded-xl">
-            <Leaf className="h-10 w-10 text-eco-green mr-4" />
-            <p className="font-semibold">Powered by Google Gemini Flash 2.0</p>
-          </div>
-          <div className="bg-white border rounded-xl p-6 flex flex-col justify-between shadow-sm">
-            <div className="mb-4">
-              <p className="text-4xl font-bold text-eco-green">17%</p>
-              <p className="text-sm text-muted-foreground">Average contamination level in recycling.</p>
-            </div>
-            <div className="mb-4">
-              <p className="text-4xl font-bold text-eco-green">20M</p>
-              <p className="text-sm text-muted-foreground">Recyclable items sent to landfills per year.</p>
-            </div>
-            <div>
-              <p className="text-4xl font-bold text-eco-green">Up to 90%</p>
-              <p className="text-sm text-muted-foreground">Reduction in contamination with real-time info.</p>
-            </div>
+        <section id="impact" className="mb-28 scroll-mt-20">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-3xl font-bold text-center mb-12">
+            Why Releaf
+          </motion.h2>
+          
+          <div className="grid md:grid-cols-2 gap-12">
+            <motion.div 
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              className="flex items-center p-8 bg-gradient-to-r from-eco-green/10 to-eco-green/5 rounded-2xl shadow-md h-full">
+              <Leaf className="h-16 w-16 text-eco-green mr-6" />
+              <div>
+                <h3 className="font-bold text-xl mb-2">Advanced AI Technology</h3>
+                <p className="font-medium text-lg">Powered by Google Gemini Flash 2.0</p>
+              </div>
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="bg-white border rounded-2xl p-8 flex flex-col justify-between shadow-md">
+              <div className="mb-8">
+                <p className="text-5xl font-bold text-eco-green mb-2">17%</p>
+                <p className="text-base text-muted-foreground">Average contamination level in recycling.</p>
+              </div>
+              <div className="mb-8">
+                <p className="text-5xl font-bold text-eco-green mb-2">20M</p>
+                <p className="text-base text-muted-foreground">Recyclable items sent to landfills per year.</p>
+              </div>
+              <div>
+                <p className="text-5xl font-bold text-eco-green mb-2">Up to 90%</p>
+                <p className="text-base text-muted-foreground">Reduction in contamination with real-time info.</p>
+              </div>
+            </motion.div>
           </div>
         </section>
 
-        {/* Footer mini-nav */}
-        <footer className="border-t pt-4 text-center text-sm text-eco-green">
-          <div className="flex flex-wrap justify-center gap-4">
-            <a href="#features" className="hover:text-eco-green/80">Features</a>
-            <a href="#how-it-works" className="hover:text-eco-green/80">How It Works</a>
-            <a href="#impact" className="hover:text-eco-green/80">Impact</a>
-            <Link to="/about" className="hover:text-eco-green/80">About the Team</Link>
-            <a href="#faq" className="hover:text-eco-green/80">FAQ</a>
+        {/* How It Works */}
+        <section id="how-it-works" className="mb-28 scroll-mt-20">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-3xl font-bold text-center mb-12">
+            How It Works
+          </motion.h2>
+          
+          <div className="flex flex-col items-center space-y-8">
+            {[
+              { step: 1, title: "Upload an Image", description: "Take a photo of any item you're unsure how to recycle" },
+              { step: 2, title: "Get AI Analysis", description: "Our AI instantly determines if and how the item can be recycled" },
+              { step: 3, title: "Track Your Impact", description: "Build streaks and see your positive environmental contribution" }
+            ].map((item, index) => (
+              <motion.div 
+                key={item.step}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 * index }}
+                className="flex w-full max-w-2xl items-start p-6 bg-white rounded-xl shadow-md"
+              >
+                <div className="bg-eco-green text-white rounded-full w-12 h-12 flex items-center justify-center mr-6 shrink-0">
+                  <span className="font-bold text-lg">{item.step}</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-xl mb-2">{item.title}</h3>
+                  <p className="text-muted-foreground">{item.description}</p>
+                </div>
+              </motion.div>
+            ))}
           </div>
-        </footer>
-      </div>
+        </section>
+        
+        {/* FAQ Section */}
+        <section id="faq" className="mb-28 scroll-mt-20">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-3xl font-bold text-center mb-12">
+            Frequently Asked Questions
+          </motion.h2>
+          
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {[
+              { q: "Is Releaf really 100% free?", a: "Yes! We believe everyone should have access to recycling guidance." },
+              { q: "How accurate is the AI?", a: "Our Gemini-powered AI has been trained on thousands of items with 90%+ accuracy." },
+              { q: "Can I use Releaf on my phone?", a: "Absolutely! Releaf is a web platform that works perfectly on mobile devices." },
+              { q: "Do I need to create an account?", a: "An account lets you track progress, but you can also use basic features without one." }
+            ].map((item, index) => (
+              <motion.div 
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 * index }}
+                className="p-6 bg-[#F3FFF3] rounded-xl border border-muted/30"
+              >
+                <h3 className="font-semibold text-lg mb-2">{item.q}</h3>
+                <p className="text-muted-foreground">{item.a}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+        
+        {/* Footer mini-nav */}
+        <motion.footer 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="border-t pt-8 mt-8 text-center text-base text-eco-green"
+        >
+          <div className="flex flex-wrap justify-center gap-8 mb-4">
+            <a href="#features" className="hover:text-eco-green/80 transition-colors">Features</a>
+            <a href="#how-it-works" className="hover:text-eco-green/80 transition-colors">How It Works</a>
+            <a href="#impact" className="hover:text-eco-green/80 transition-colors">Impact</a>
+            <Link to="/about" className="hover:text-eco-green/80 transition-colors">About the Team</Link>
+            <a href="#faq" className="hover:text-eco-green/80 transition-colors">FAQ</a>
+          </div>
+          
+          <div className="text-sm text-muted-foreground mt-4">
+            © {new Date().getFullYear()} Releaf. All rights reserved.
+          </div>
+        </motion.footer>
+      </motion.div>
     </div>
   </BackgroundImage>
 );

@@ -331,7 +331,7 @@ const Landing = () => {
                     <GifPlaceholder 
                       icon={ClipboardCheck} 
                       title="Upload items to recycle properly"
-                      gifSrc="/productpagegifs/clip1.gif"
+                      gifSrc="/productpagegifs/clip1.svg"
                     >
                       Scan questionable items for proper recycling guidance
                     </GifPlaceholder>
@@ -340,7 +340,7 @@ const Landing = () => {
                     <GifPlaceholder 
                       icon={Camera} 
                       title="AI analyzes your items in real-time"
-                      gifSrc="/productpagegifs/clip2.gif"
+                      gifSrc="/productpagegifs/clip2.svg"
                     >
                       Watch as our AI determines recyclability and materials
                     </GifPlaceholder>
@@ -349,7 +349,7 @@ const Landing = () => {
                     <GifPlaceholder 
                       icon={Info} 
                       title="Track your environmental impact"
-                      gifSrc="/productpagegifs/clip3.gif"
+                      gifSrc="/productpagegifs/clip3.svg"
                     >
                       View your history and build streaks to save the planet
                     </GifPlaceholder>
@@ -380,10 +380,10 @@ const Landing = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { name: 'Sean E.', role: 'Frontend Developer', photo: '/teamphotos/sean.png', bio: 'Creates beautiful, responsive interfaces that bring the Releaf experience to life.' },
-              { name: 'Kevin H.', role: 'Backend Developer', photo: '/teamphotos/kevin.png', bio: 'Architect of Releaf\'s server infrastructure and data pipelines.' },
-              { name: 'Enzo P.', role: 'Graphic Designer', photo: '/teamphotos/enzo.png', bio: 'Crafts the visual identity of Releaf with an eye for sustainability-inspired aesthetics.' },
-              { name: 'Turat Z.', role: 'Creative Director', photo: '/teamphotos/turat.png', bio: 'Guides the vision and storytelling behind Releaf.' }
+              { name: 'Sean E.', role: 'Frontend Developer', photo: '/teamphotos/sean.svg', bio: 'Creates beautiful, responsive interfaces that bring the Releaf experience to life.' },
+              { name: 'Kevin H.', role: 'Backend Developer', photo: '/teamphotos/kevin.svg', bio: 'Architect of Releaf\'s server infrastructure and data pipelines.' },
+              { name: 'Enzo P.', role: 'Graphic Designer', photo: '/teamphotos/enzo.svg', bio: 'Crafts the visual identity of Releaf with an eye for sustainability-inspired aesthetics.' },
+              { name: 'Turat Z.', role: 'Creative Director', photo: '/teamphotos/turat.svg', bio: 'Guides the vision and storytelling behind Releaf.' }
             ].map((member, index) => (
               <motion.div 
                 key={member.name}

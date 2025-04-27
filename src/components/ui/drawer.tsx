@@ -1,21 +1,10 @@
 import * as React from "react";
-import { Drawer as DrawerPrimitive } from "vaul";
+import { Drawer as DrawerPrimitive } from 'vaul';
 
 import { cn } from "@/lib/utils"
 
-const Drawer = ({
-  shouldScaleBackground = true,
-  children,
-  ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Root> & { children: React.ReactNode }) => (
-  <DrawerPrimitive.Root
-    shouldScaleBackground={shouldScaleBackground}
-    {...props}
-  >
-    {children}
-  </DrawerPrimitive.Root>
-);
-Drawer.displayName = "Drawer";
+// Export Vaul's Drawer.Root directly to preserve hooks context
+export const Drawer = DrawerPrimitive.Root;
 
 const DrawerTrigger = DrawerPrimitive.Trigger;
 
@@ -106,7 +95,6 @@ const DrawerDescription = React.forwardRef<
 DrawerDescription.displayName = DrawerPrimitive.Description.displayName;
 
 export {
-  Drawer,
   DrawerTrigger,
   DrawerPortal,
   DrawerOverlay,
@@ -115,5 +103,5 @@ export {
   DrawerHeader,
   DrawerFooter,
   DrawerTitle,
-  DrawerDescription,
+  DrawerDescription
 };

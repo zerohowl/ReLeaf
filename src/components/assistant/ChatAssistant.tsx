@@ -1,14 +1,13 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
 import { 
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerClose
-} from '@/components/ui/drawer';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -64,12 +63,12 @@ const ChatAssistant = () => {
         <MessageCircle className="h-6 w-6" />
       </Button>
 
-      <Drawer open={isOpen} onOpenChange={setIsOpen}>
-        <DrawerContent className="h-[80vh]">
-          <DrawerHeader className="border-b">
-            <DrawerTitle>Releaf Assistant</DrawerTitle>
-            <DrawerClose />
-          </DrawerHeader>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="h-[80vh]">
+          <DialogHeader className="border-b">
+            <DialogTitle>Releaf Assistant</DialogTitle>
+            <DialogClose />
+          </DialogHeader>
           <div className="flex flex-col h-full p-4">
             <div className="flex-1 overflow-y-auto mb-4 space-y-4">
               {messages.length === 0 ? (
@@ -120,8 +119,8 @@ const ChatAssistant = () => {
               </Button>
             </div>
           </div>
-        </DrawerContent>
-      </Drawer>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

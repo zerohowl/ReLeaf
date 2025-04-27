@@ -90,7 +90,7 @@ const Dashboard = () => {
     <PageTransition>
       <BackgroundImage>
         <AppLayout>
-          <div className="mb-8 space-y-4">
+          <div className="mb-8 space-y-4 bg-white/70 backdrop-blur-sm p-4 rounded-lg">
             <h1 className="text-4xl font-bold mb-2 text-gradient">Welcome back!</h1>
             <p className="text-muted-foreground text-lg">
               Track your recycling progress and make a positive impact on the environment.

@@ -57,7 +57,7 @@ const Upload = () => {
     <PageTransition>
       <BackgroundImage>
         <AppLayout>
-      <div className="mb-6">
+      <div className="mb-6 bg-white/70 backdrop-blur-sm p-4 rounded-lg">
         <h1 className="text-3xl font-bold mb-2">Upload & Scan</h1>
         <p className="text-muted-foreground">
           Upload an item to check its recyclability or record your recycling action.

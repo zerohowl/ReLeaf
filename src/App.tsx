@@ -13,7 +13,8 @@ import Leaderboard from "./pages/Leaderboard";
 import Streaks from "./pages/Streaks";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
-import ChatAssistant from "./components/assistant/ChatAssistant";
+// Temporarily disabled due to React hook context issues
+// import ChatAssistant from "./components/assistant/ChatAssistant";
 import { AnimatePresence } from "framer-motion";
 
 const queryClient = new QueryClient();
@@ -45,7 +46,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AnimatedRoutes />
-          <ChatAssistant />
+          {/* ChatAssistant temporarily disabled due to React hook issues */}
+          {/* <ChatAssistant /> */}
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>

@@ -18,7 +18,7 @@ A React application for identifying, categorizing, and tracking recyclable mater
 ## Tech Stack
 
 ### Frontend
-- Vite + React + TypeScript
+- Vite + React + TypeScrip
 - Tailwind CSS with shadcn-ui & Radix UI
 - Framer Motion for animations
 - Google Gemini Generative AI integration
